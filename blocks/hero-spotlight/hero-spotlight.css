@@ -1,0 +1,132 @@
+/* hero-spotlight — full-bleed dark hero with background video/image + overlay.
+   Values extracted from https://www.beckmancoulter.com/ (.video-hero-carousel).
+   The purple tone is baked into the source media; no CSS gradient is applied. */
+
+/* Full-bleed: break out of the section's max-width container */
+.hero-spotlight-wrapper,
+.hero-spotlight-container .hero-spotlight-wrapper {
+  max-width: 100% !important;
+  padding: 0 !important;
+}
+
+.hero-spotlight {
+  position: relative;
+  overflow: hidden;
+  min-height: 300px;
+  background-color: var(--dark-color); /* fallback while media loads */
+  color: var(--background-color);
+}
+
+/* --- Background media row (video / picture) --- */
+.hero-spotlight .hero-spotlight-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.hero-spotlight .hero-spotlight-media video,
+.hero-spotlight .hero-spotlight-media picture,
+.hero-spotlight .hero-spotlight-media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* --- Overlay content row --- */
+.hero-spotlight .hero-spotlight-overlay {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.hero-spotlight .hero-spotlight-content {
+  text-align: left;
+}
+
+/* Heading */
+.hero-spotlight h1,
+.hero-spotlight h2,
+.hero-spotlight h3,
+.hero-spotlight h4,
+.hero-spotlight h5,
+.hero-spotlight h6 {
+  margin: 0;
+  font-family: var(--heading-font-family);
+  font-weight: 300;
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+  color: var(--background-color);
+  font-size: 32px;
+}
+
+/* Subtext */
+.hero-spotlight p {
+  margin: 12px 0 0;
+  font-family: var(--body-font-family);
+  font-weight: 300;
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--background-color);
+}
+
+/* CTA "Read more" */
+.hero-spotlight a.button:any-link {
+  margin: 24px 0 0;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--brand-primary);
+  color: var(--background-color);
+  font-family: var(--heading-font-family);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* No-media fallback: keep text dark on light background */
+.hero-spotlight.no-image {
+  background-color: transparent;
+}
+
+.hero-spotlight.no-image h1,
+.hero-spotlight.no-image h2,
+.hero-spotlight.no-image h3,
+.hero-spotlight.no-image h4,
+.hero-spotlight.no-image h5,
+.hero-spotlight.no-image h6,
+.hero-spotlight.no-image p {
+  color: var(--text-color);
+}
+
+/* --- Desktop --- */
+@media (width >= 900px) {
+  .hero-spotlight {
+    min-height: 468px;
+  }
+
+  .hero-spotlight .hero-spotlight-overlay {
+    padding: 91px 32px 91px 62px;
+  }
+
+  .hero-spotlight h1,
+  .hero-spotlight h2,
+  .hero-spotlight h3,
+  .hero-spotlight h4,
+  .hero-spotlight h5,
+  .hero-spotlight h6 {
+    font-size: 48px;
+  }
+
+  .hero-spotlight p {
+    font-size: 25px;
+    line-height: 1.5;
+  }
+}

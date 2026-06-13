@@ -1,0 +1,135 @@
+/*
+ * columns-feature block
+ * Source: beckmancoulter.com
+ *   - .adjustable-two-column-display  -> 2-col feature rows (heading + paragraph + button | image)
+ *   - .social-proof-card              -> 2-col media showcase (text | video thumbnail)
+ *   - .quick-links                    -> horizontal icon-link bar (5+ cols)
+ * Values extracted from source computed styles; colors/fonts mapped to brand tokens.
+ */
+
+/* ===== shared 2-column (mobile-first: stacked) ===== */
+.columns-feature > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.columns-feature > div > div {
+  order: 1;
+  padding: 14px;
+}
+
+.columns-feature img {
+  display: block;
+  width: 100%;
+  object-fit: cover;
+}
+
+/* image column appears first on mobile (above the text) */
+.columns-feature > div > .columns-feature-img-col {
+  order: 0;
+  padding: 0;
+}
+
+/* headings */
+.columns-feature h2 {
+  margin: 0 0 14px;
+  font-family: var(--heading-font-family);
+  font-weight: 200;
+  font-size: var(--heading-font-size-xl);
+  line-height: 1.28;
+  color: var(--text-color);
+}
+
+/* body copy */
+.columns-feature p {
+  margin: 0 0 15.75px;
+  font-family: var(--body-font-family);
+  font-size: 15.75px;
+  line-height: 1.5;
+  color: var(--text-color);
+}
+
+/* CTA button — base a.button styling comes from styles.css (brand purple).
+   Source CTA padding/size; scope to win over global without !important. */
+main .columns-feature a.button:any-link {
+  margin: 0;
+  padding: 12px 24px;
+  font-size: 15.75px;
+  font-weight: 500;
+  border-radius: 8px;
+}
+
+.columns-feature .button-container {
+  margin: 0;
+}
+
+/* ===== quick-links bar variant (5+ cols) ===== */
+.columns-feature.columns-feature-5-cols > div {
+  flex-flow: row wrap;
+  justify-content: center;
+  padding: 15px 0 0;
+}
+
+.columns-feature.columns-feature-5-cols > div > div {
+  flex: 1 1 auto;
+  order: unset;
+  padding: 0;
+  text-align: center;
+}
+
+.columns-feature.columns-feature-5-cols p {
+  margin: 0;
+}
+
+.columns-feature.columns-feature-5-cols a {
+  display: block;
+  padding: 12px;
+  font-size: 17px;
+  font-weight: 400;
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+.columns-feature.columns-feature-5-cols a:hover {
+  color: var(--brand-primary);
+}
+
+/* strip default paragraph/link spacing around the picture.
+   Targets image-column descendants only; no real cascade conflict with the
+   quick-links rules above. */
+/* stylelint-disable-next-line no-descending-specificity */
+.columns-feature > div > .columns-feature-img-col a,
+.columns-feature > div > .columns-feature-img-col p {
+  display: block;
+  margin: 0;
+}
+
+/* ===== desktop ===== */
+@media (width >= 900px) {
+  .columns-feature > div {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    gap: 24px;
+  }
+
+  .columns-feature > div > div {
+    flex: 1;
+    order: unset;
+    padding: 14px;
+  }
+
+  .columns-feature > div > .columns-feature-img-col {
+    padding: 14px;
+  }
+
+  /* quick-links: keep single horizontal row of equal items */
+  .columns-feature.columns-feature-5-cols > div {
+    flex-wrap: nowrap;
+    gap: 0;
+  }
+
+  .columns-feature.columns-feature-5-cols > div > div {
+    flex: 1 1 0;
+  }
+}

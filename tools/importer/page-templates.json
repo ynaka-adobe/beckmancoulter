@@ -1,0 +1,123 @@
+{
+  "metadata": {
+    "projectType": "da"
+  },
+  "templates": [
+    {
+      "name": "homepage",
+      "urls": [
+        "https://www.beckmancoulter.com/"
+      ],
+      "description": "Beckman Coulter homepage with hero, product highlights, and content sections",
+      "blocks": [
+        {
+          "name": "hero-spotlight",
+          "instances": [
+            ".video-hero-carousel"
+          ]
+        },
+        {
+          "name": "columns-feature",
+          "instances": [
+            ".quick-links",
+            ".social-proof-card",
+            ".adjustable-two-column-display"
+          ]
+        },
+        {
+          "name": "carousel-product",
+          "instances": [
+            ".product-slider-carousel"
+          ]
+        },
+        {
+          "name": "cards-product",
+          "instances": [
+            ".sublayout-two-column-dynamic",
+            ".sublayout.col-3-default-padding"
+          ]
+        },
+        {
+          "name": "section-carousel",
+          "instances": [
+            ".product-slider-carousel"
+          ],
+          "section": "navy-blue"
+        }
+      ],
+      "sections": [
+        {
+          "id": "section-1",
+          "name": "Hero",
+          "selector": ".video-hero-carousel",
+          "style": null,
+          "blocks": [
+            "hero-spotlight",
+            "columns-feature"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "section-2",
+          "name": "Intro & Media Showcase",
+          "selector": ".social-proof-section",
+          "style": null,
+          "blocks": [
+            "columns-feature"
+          ],
+          "defaultContent": [
+            "h2"
+          ]
+        },
+        {
+          "id": "section-3",
+          "name": "Feature Rows",
+          "selector": ".adjustable-two-column-display",
+          "style": null,
+          "blocks": [
+            "columns-feature"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "section-4",
+          "name": "Comprehensive Diagnostic Solutions Carousel",
+          "selector": ".product-slider-carousel",
+          "style": "navy-blue",
+          "blocks": [
+            "carousel-product"
+          ],
+          "defaultContent": [
+            ".carousel-heading",
+            ".carousel-subheading"
+          ]
+        },
+        {
+          "id": "section-5",
+          "name": "DxC 500 Product Cards",
+          "selector": ".sublayout-two-column-dynamic",
+          "style": null,
+          "blocks": [
+            "cards-product"
+          ],
+          "defaultContent": [
+            "h2"
+          ]
+        },
+        {
+          "id": "section-6",
+          "name": "Learning Cards & Footnote",
+          "selector": ".sublayout.col-3-default-padding",
+          "style": null,
+          "blocks": [
+            "cards-product"
+          ],
+          "defaultContent": [
+            "h2",
+            ".disclaimer-text"
+          ]
+        }
+      ]
+    }
+  ]
+}

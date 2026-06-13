@@ -1,0 +1,38 @@
+{
+  "variantName": "carousel-product",
+  "baseBlock": "carousel",
+  "version": "1.0.0",
+  "created": "2026-06-13T00:00:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://www.beckmancoulter.com/",
+    "originPage": "Beckman Coulter homepage",
+    "blockPosition": "middle"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "dark",
+    "density": "spacious",
+    "purpose": "product",
+    "imagePattern": "large"
+  },
+  "contentPattern": {
+    "structure": "multiple slides, each with image + title + link, prev/next nav and indicators",
+    "buttonCount": 0,
+    "imageCount": 10
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "rotating product/solution showcases",
+      "image galleries with navigation on dark backgrounds",
+      "multi-item sliders with pagination"
+    ],
+    "notSuitableFor": [
+      "static side-by-side content (use columns)",
+      "uniform non-rotating grids (use cards)"
+    ]
+  },
+  "usage": {
+    "pagesUsing": ["/index"],
+    "reuseCount": 1,
+    "lastUsed": "2026-06-13T00:00:00.000Z"
+  }
+}

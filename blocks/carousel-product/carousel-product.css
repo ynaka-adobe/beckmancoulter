@@ -1,0 +1,235 @@
+/* Block: carousel-product -- horizontal product slider
+   Source: https://www.beckmancoulter.com/ .product-slider-carousel (Owl Carousel)
+   Source slide: 318px wide, 10px gap, image 2:1 ratio, centered title below.
+   ~4 slides visible on desktop. Sits in a navy-blue section in EDS. */
+
+.carousel-product .carousel-product-slides-container {
+  position: relative;
+}
+
+.carousel-product .carousel-product-slides,
+.carousel-product .carousel-product-slide-indicators {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* horizontal scroll track */
+.carousel-product .carousel-product-slides {
+  display: flex;
+  gap: 10px;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  overflow: scroll clip;
+}
+
+.carousel-product .carousel-product-slides::-webkit-scrollbar {
+  display: none;
+}
+
+/* one slide per view on mobile, multiple on desktop (see media query) */
+.carousel-product .carousel-product-slide {
+  flex: 0 0 80%;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  position: relative;
+  min-height: 0;
+}
+
+/* image cell: 2:1 ratio, fills the slide width, no radius */
+.carousel-product .carousel-product-slide .carousel-product-slide-image {
+  position: static;
+  width: 100%;
+}
+
+.carousel-product .carousel-product-slide .carousel-product-slide-image picture {
+  position: static;
+  inset: auto;
+  display: block;
+}
+
+.carousel-product .carousel-product-slide .carousel-product-slide-image img,
+.carousel-product .carousel-product-slide .carousel-product-slide-image picture > img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2 / 1;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+/* title cell: centered text below the image, no card/background, not a button */
+.carousel-product .carousel-product-slide .carousel-product-slide-content {
+  z-index: 0;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  background: none;
+  color: inherit;
+  position: static;
+  text-align: center;
+}
+
+/* slide title link -- override EDS button decoration; plain centered title */
+.carousel-product .carousel-product-slide .carousel-product-slide-content a,
+.carousel-product .carousel-product-slide .carousel-product-slide-content a.button:any-link {
+  display: inline-block;
+  max-width: 100%;
+  margin: 14px 0 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  font-family: var(--heading-font-family);
+  font-size: var(--heading-font-size-s, 16px);
+  font-weight: 300;
+  line-height: 1.28;
+  text-align: center;
+  text-transform: none;
+  text-decoration: none;
+  white-space: normal;
+  text-overflow: clip;
+  color: var(--link-color);
+  transition: color 0.2s ease;
+}
+
+.carousel-product .carousel-product-slide .carousel-product-slide-content a:hover,
+.carousel-product .carousel-product-slide .carousel-product-slide-content a.button:hover {
+  background: none;
+  opacity: 1;
+  text-decoration: underline;
+  color: var(--link-hover-color);
+}
+
+/* slide titles on dark/navy sections: white text */
+.section.navy-blue .carousel-product .carousel-product-slide-content a,
+.section.dark .carousel-product .carousel-product-slide-content a {
+  color: var(--background-color);
+}
+
+.section.navy-blue .carousel-product .carousel-product-slide-content a:hover,
+.section.dark .carousel-product .carousel-product-slide-content a:hover {
+  color: var(--background-color);
+}
+
+/* indicator dots -- small round, centered below */
+.carousel-product .carousel-product-slide-indicators {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 12px 0;
+  background: none;
+  line-height: 0;
+}
+
+.carousel-product .carousel-product-slide-indicator button {
+  width: 10px;
+  height: 10px;
+  margin: 0;
+  padding: 0;
+  border-radius: 50%;
+  background-color: rgb(211 211 211);
+  transition: background-color 0.2s;
+}
+
+.carousel-product .carousel-product-slide-indicator button:disabled,
+.carousel-product .carousel-product-slide-indicator button:hover,
+.carousel-product .carousel-product-slide-indicator button:focus-visible {
+  background-color: rgb(71 76 85);
+}
+
+/* dots on dark/navy sections */
+.section.navy-blue .carousel-product .carousel-product-slide-indicator button:disabled,
+.section.navy-blue .carousel-product .carousel-product-slide-indicator button:hover,
+.section.dark .carousel-product .carousel-product-slide-indicator button:disabled,
+.section.dark .carousel-product .carousel-product-slide-indicator button:hover {
+  background-color: var(--background-color);
+}
+
+/* prev / next chevron arrows -- transparent, gray, at the sides */
+.carousel-product .carousel-product-navigation-buttons {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* stylelint-disable-next-line no-descending-specificity */
+.carousel-product .carousel-product-navigation-buttons button {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  pointer-events: auto;
+  transition: opacity 0.2s;
+}
+
+/* stylelint-disable no-descending-specificity */
+.carousel-product .carousel-product-navigation-buttons button:hover,
+.carousel-product .carousel-product-navigation-buttons button:focus-visible {
+  background: none;
+  opacity: 0.7;
+}
+/* stylelint-enable no-descending-specificity */
+
+/* chevron drawn with a rotated border */
+.carousel-product .carousel-product-navigation-buttons button::after {
+  display: block;
+  content: '';
+  border: 3px solid rgb(71 76 85);
+  border-bottom: 0;
+  border-left: 0;
+  height: 18px;
+  width: 18px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}
+
+.carousel-product .carousel-product-navigation-buttons button.slide-prev::after {
+  transform: translate(-50%, -50%) rotate(-135deg);
+}
+
+.carousel-product .carousel-product-navigation-buttons button.slide-next::after {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+/* arrows on dark/navy sections: white chevrons */
+.section.navy-blue .carousel-product .carousel-product-navigation-buttons button::after,
+.section.dark .carousel-product .carousel-product-navigation-buttons button::after {
+  border-color: var(--background-color);
+}
+
+@media (width >= 600px) {
+  .carousel-product .carousel-product-slide {
+    flex: 0 0 calc((100% - 10px) / 2);
+  }
+}
+
+@media (width >= 900px) {
+  /* ~4 slides visible, 10px gaps between them */
+  .carousel-product .carousel-product-slide {
+    flex: 0 0 calc((100% - 30px) / 4);
+  }
+
+  /* arrows sit just outside the track edges */
+  .carousel-product .carousel-product-navigation-buttons {
+    left: -46px;
+    right: -46px;
+  }
+
+  .carousel-product .carousel-product-navigation-buttons button {
+    width: 40px;
+    height: 173px;
+  }
+}

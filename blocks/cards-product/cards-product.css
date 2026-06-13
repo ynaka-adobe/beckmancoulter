@@ -1,0 +1,211 @@
+/* cards-product — design migrated from beckmancoulter.com
+ * Covers two source grids that share this EDS block:
+ *   Variant A: DxC 500 AU product feature cards (image + NEW badge overlay + title + CTA)
+ *   Variant B: "Learning" icon cards (icon + title link + description + Explore link)
+ * Block JS renders rows as <ul><li>, cells as .cards-product-card-image / .cards-product-card-body.
+ * A card containing .cards-product-card-image is treated as Variant A; otherwise Variant B.
+ */
+
+/* ---------- shared grid ---------- */
+.cards-product > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 28px;
+}
+
+.cards-product > ul > li {
+  flex: 1 1 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background-color);
+}
+
+.cards-product > ul > li img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* ============================================================
+ * Variant A — product feature card (has an image cell)
+ * Image fills the card; title + CTA overlay the lower-left;
+ * a purple "NEW" badge sits in the top-left corner.
+ * ============================================================ */
+.cards-product > ul > li:has(.cards-product-card-image) {
+  position: relative;
+  min-height: 300px;
+  padding: 40px;
+  justify-content: center;
+  align-items: flex-start;
+  overflow: hidden;
+}
+
+/* background image */
+.cards-product > ul > li:has(.cards-product-card-image) .cards-product-card-image {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  line-height: 0;
+}
+
+.cards-product > ul > li:has(.cards-product-card-image) .cards-product-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* "NEW" badge — decorative corner flag (source design element) */
+.cards-product > ul > li:has(.cards-product-card-image)::before {
+  content: "NEW";
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  padding: 10px 25px 11px 20px;
+  background-color: var(--brand-primary);
+  color: var(--background-color);
+  font-family: var(--heading-font-family);
+  font-size: 24px;
+  font-weight: 350;
+  line-height: 1;
+}
+
+/* "NEW" badge — authored as first text in the body; render via ::before on the body */
+.cards-product > ul > li:has(.cards-product-card-image) .cards-product-card-body {
+  position: relative;
+  z-index: 1;
+  max-width: 55%;
+}
+
+/* title */
+.cards-product > ul > li:has(.cards-product-card-image) .cards-product-card-body h1,
+.cards-product > ul > li:has(.cards-product-card-image) .cards-product-card-body h2,
+.cards-product > ul > li:has(.cards-product-card-image) .cards-product-card-body h3,
+.cards-product > ul > li:has(.cards-product-card-image) .cards-product-card-body h4 {
+  margin: 0 0 14px;
+  font-family: var(--heading-font-family);
+  font-size: 24px;
+  font-weight: 300;
+  line-height: 1.28;
+  color: var(--text-color);
+}
+
+/* "Learn more" CTA — outlined purple (secondary button look) */
+.cards-product > ul > li:has(.cards-product-card-image) .cards-product-card-body a.button:any-link {
+  margin: 0;
+  padding: 12px 24px;
+  border: 1px solid var(--brand-primary);
+  border-radius: 8px;
+  background-color: transparent;
+  color: var(--brand-primary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.cards-product > ul > li:has(.cards-product-card-image) .cards-product-card-body a.button:hover,
+.cards-product > ul > li:has(.cards-product-card-image) .cards-product-card-body a.button:focus {
+  background-color: var(--brand-primary);
+  color: var(--background-color);
+  opacity: 1;
+}
+
+/* ============================================================
+ * Variant B — "Learning" icon card (no image cell)
+ * White card, purple top border, centered icon + title + body + link.
+ * ============================================================ */
+.cards-product > ul > li:not(:has(.cards-product-card-image)) {
+  border-top: 4px solid var(--brand-primary);
+  box-shadow: rgb(0 0 0 / 10%) 0 2px 2px 0;
+  text-align: center;
+  padding: 24px 16px;
+}
+
+/* the empty/first body cell acts as the icon slot */
+.cards-product > ul > li:not(:has(.cards-product-card-image)) .cards-product-card-body:first-child {
+  min-height: 40px;
+  margin-bottom: 12px;
+}
+
+/* stylelint-disable no-descending-specificity */
+.cards-product > ul > li:not(:has(.cards-product-card-image)) h1,
+.cards-product > ul > li:not(:has(.cards-product-card-image)) h2,
+.cards-product > ul > li:not(:has(.cards-product-card-image)) h3 {
+  margin: 0 0 12px;
+  font-family: var(--heading-font-family);
+  font-size: 28px;
+  font-weight: 300;
+  line-height: 1.1;
+  color: var(--text-color);
+}
+/* stylelint-enable no-descending-specificity */
+
+.cards-product > ul > li:not(:has(.cards-product-card-image)) h1 a,
+.cards-product > ul > li:not(:has(.cards-product-card-image)) h2 a,
+.cards-product > ul > li:not(:has(.cards-product-card-image)) h3 a {
+  color: inherit;
+}
+
+.cards-product > ul > li:not(:has(.cards-product-card-image)) h1 a:hover,
+.cards-product > ul > li:not(:has(.cards-product-card-image)) h2 a:hover,
+.cards-product > ul > li:not(:has(.cards-product-card-image)) h3 a:hover {
+  text-decoration: none;
+}
+
+.cards-product > ul > li:not(:has(.cards-product-card-image)) p {
+  margin: 0 0 12px;
+  font-family: var(--body-font-family);
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--text-color);
+}
+
+/* "Explore" — plain blue text link, not the purple button */
+/* stylelint-disable-next-line no-descending-specificity */
+.cards-product > ul > li:not(:has(.cards-product-card-image)) a:any-link {
+  display: inline-block;
+  margin: 0;
+  padding: 8px 0;
+  border: none;
+  background-color: transparent;
+  color: var(--link-color);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* stylelint-disable-next-line no-descending-specificity */
+.cards-product > ul > li:not(:has(.cards-product-card-image)) a.button:any-link {
+  border: none;
+  background-color: transparent;
+  color: var(--link-color);
+  padding: 8px 0;
+  border-radius: 0;
+}
+
+/* stylelint-disable-next-line no-descending-specificity */
+.cards-product > ul > li:not(:has(.cards-product-card-image)) a:hover {
+  color: var(--link-hover-color);
+  text-decoration: underline;
+  opacity: 1;
+}
+
+/* ---------- responsive ---------- */
+@media (width >= 900px) {
+  .cards-product > ul {
+    gap: 30px;
+  }
+
+  /* Variant A: two cards side by side */
+  .cards-product > ul:has(.cards-product-card-image) > li {
+    flex: 1 1 0;
+    max-width: 641px;
+  }
+
+  /* Variant B: three columns */
+  .cards-product > ul:not(:has(.cards-product-card-image)) > li {
+    flex: 1 1 0;
+  }
+}

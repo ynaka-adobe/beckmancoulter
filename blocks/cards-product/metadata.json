@@ -1,0 +1,38 @@
+{
+  "variantName": "cards-product",
+  "baseBlock": "cards",
+  "version": "1.0.0",
+  "created": "2026-06-13T00:00:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://www.beckmancoulter.com/",
+    "originPage": "Beckman Coulter homepage",
+    "blockPosition": "bottom"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "light",
+    "density": "compact",
+    "purpose": "product",
+    "imagePattern": "large"
+  },
+  "contentPattern": {
+    "structure": "grid of cards, each with image/icon + title + description + CTA",
+    "buttonCount": 1,
+    "imageCount": 1
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "product feature grids (image + title + CTA)",
+      "learning/resource card grids with icons",
+      "uniform repeating item collections"
+    ],
+    "notSuitableFor": [
+      "single highlighted feature (use columns or default content)",
+      "rotating galleries (use carousel)"
+    ]
+  },
+  "usage": {
+    "pagesUsing": ["/index"],
+    "reuseCount": 1,
+    "lastUsed": "2026-06-13T00:00:00.000Z"
+  }
+}

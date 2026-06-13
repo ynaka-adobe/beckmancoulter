@@ -1,0 +1,18 @@
+{
+  "status": "success",
+  "url": "https://www.beckmancoulter.com/",
+  "path": "index",
+  "timestamp": "2026-06-13T03:53:22.308Z",
+  "title": "Beckman Coulter Diagnostics | Beckman Coulter",
+  "template": "homepage",
+  "blocks": [
+    "hero-spotlight",
+    "columns-feature",
+    "columns-feature",
+    "columns-feature",
+    "columns-feature",
+    "carousel-product",
+    "cards-product",
+    "cards-product"
+  ]
+}
