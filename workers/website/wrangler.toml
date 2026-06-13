@@ -1,0 +1,9 @@
+name = "beckmancoulter-website"
+main = "index.js"
+compatibility_date = "2025-02-14"
+keep_vars = true
+
+vars = { AEM_ORG = "ynaka-adobe", AEM_SITE = "beckmancoulter", TARGET_HOSTNAME = "" }
+
+[env.dev]
+vars = { AEM_ORG = "ynaka-adobe", AEM_SITE = "beckmancoulter", TARGET_HOSTNAME = "" }
