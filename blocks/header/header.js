@@ -73,16 +73,6 @@ function buildSearch() {
   return wrapper;
 }
 
-function setupBannerDismiss(banner) {
-  if (!banner) return;
-  const close = document.createElement('button');
-  close.type = 'button';
-  close.className = 'nav-banner-close';
-  close.setAttribute('aria-label', 'Dismiss announcement');
-  close.addEventListener('click', () => { banner.hidden = true; });
-  banner.append(close);
-}
-
 /**
  * loads and decorates the header
  * @param {Element} block The header block element
@@ -101,15 +91,23 @@ export default async function decorate(block) {
   nav.id = 'nav';
   while (fragment.firstElementChild) nav.append(fragment.firstElementChild);
 
-  // sections in fragment order: banner, brand, main-nav, tools
-  const classes = ['banner', 'brand', 'sections', 'tools'];
+  // loadFragment runs decorateMain/loadSections, which wraps each top-level div
+  // as `.section > .default-content-wrapper`. Unwrap so the lists/images become
+  // direct children again (CSS and dropdown tagging rely on direct-child selectors).
+  nav.querySelectorAll(':scope > div').forEach((section) => {
+    const wrapper = section.querySelector(':scope > .default-content-wrapper');
+    if (wrapper) {
+      while (wrapper.firstChild) section.insertBefore(wrapper.firstChild, wrapper);
+      wrapper.remove();
+    }
+  });
+
+  // sections in fragment order: brand, main-nav, tools
+  const classes = ['brand', 'sections', 'tools'];
   classes.forEach((c, i) => {
     const section = nav.children[i];
     if (section) section.classList.add(`nav-${c}`);
   });
-
-  const navBanner = nav.querySelector('.nav-banner');
-  setupBannerDismiss(navBanner);
 
   const navSections = nav.querySelector('.nav-sections');
   if (navSections) {
