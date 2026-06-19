@@ -52,6 +52,108 @@ function decorateDropdowns(section) {
   });
 }
 
+const COUNTRIES = [
+  ['United States', 'us'], ['Canada', 'ca'], ['United Kingdom', 'gb'],
+  ['Australia', 'au'], ['Germany', 'de'], ['France', 'fr'], ['Japan', 'jp'],
+  ['China', 'cn'], ['Brazil', 'br'], ['Mexico', 'mx'], ['India', 'in'],
+  ['South Korea', 'kr'], ['Italy', 'it'], ['Spain', 'es'], ['Netherlands', 'nl'],
+  ['Sweden', 'se'], ['Switzerland', 'ch'], ['Belgium', 'be'], ['Austria', 'at'],
+  ['Singapore', 'sg'], ['Hong Kong', 'hk'], ['New Zealand', 'nz'],
+  ['Denmark', 'dk'], ['Norway', 'no'], ['Finland', 'fi'], ['Poland', 'pl'],
+  ['Czech Republic', 'cz'], ['Portugal', 'pt'], ['Argentina', 'ar'],
+  ['Colombia', 'co'], ['Chile', 'cl'], ['South Africa', 'za'],
+  ['United Arab Emirates', 'ae'], ['Israel', 'il'], ['Turkey', 'tr'],
+  ['Russia', 'ru'], ['Taiwan', 'tw'], ['Thailand', 'th'], ['Malaysia', 'my'],
+  ['Indonesia', 'id'], ['Philippines', 'ph'], ['Vietnam', 'vn'],
+];
+
+const LANGUAGES = [
+  ['English', 'en'], ['French', 'fr'], ['German', 'de'], ['Spanish', 'es'],
+  ['Italian', 'it'], ['Portuguese', 'pt'], ['Dutch', 'nl'], ['Swedish', 'sv'],
+  ['Danish', 'da'], ['Norwegian', 'no'], ['Finnish', 'fi'], ['Polish', 'pl'],
+  ['Czech', 'cs'], ['Russian', 'ru'], ['Japanese', 'ja'], ['Chinese (Simplified)', 'zh-cn'],
+  ['Chinese (Traditional)', 'zh-tw'], ['Korean', 'ko'], ['Arabic', 'ar'],
+  ['Turkish', 'tr'], ['Thai', 'th'], ['Vietnamese', 'vi'], ['Indonesian', 'id'],
+];
+
+function buildLocaleModal() {
+  const overlay = document.createElement('div');
+  overlay.className = 'locale-modal-overlay';
+  overlay.setAttribute('aria-hidden', 'true');
+
+  const modal = document.createElement('div');
+  modal.className = 'locale-modal';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.setAttribute('aria-labelledby', 'locale-modal-title');
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'locale-modal-close';
+  closeBtn.setAttribute('aria-label', 'Close');
+  closeBtn.innerHTML = '&times;';
+
+  const title = document.createElement('h2');
+  title.id = 'locale-modal-title';
+  title.textContent = 'Choose your country/region and language';
+
+  const desc = document.createElement('p');
+  desc.textContent = 'Your experience may change as only information for the country or region you select will be presented.';
+
+  const countryLabel = document.createElement('label');
+  countryLabel.setAttribute('for', 'locale-country');
+  countryLabel.textContent = 'Country or Region';
+
+  const countrySelect = document.createElement('select');
+  countrySelect.id = 'locale-country';
+  COUNTRIES.forEach(([name]) => {
+    const opt = document.createElement('option');
+    opt.value = name.toLowerCase().replace(/\s+/g, '-');
+    opt.textContent = name;
+    if (name === 'United States') opt.selected = true;
+    countrySelect.append(opt);
+  });
+
+  const langLabel = document.createElement('label');
+  langLabel.setAttribute('for', 'locale-language');
+  langLabel.textContent = 'Language';
+
+  const langSelect = document.createElement('select');
+  langSelect.id = 'locale-language';
+  LANGUAGES.forEach(([name]) => {
+    const opt = document.createElement('option');
+    opt.value = name.toLowerCase().replace(/\s+/g, '-');
+    opt.textContent = name;
+    if (name === 'English') opt.selected = true;
+    langSelect.append(opt);
+  });
+
+  const enterBtn = document.createElement('button');
+  enterBtn.className = 'locale-modal-enter';
+  enterBtn.textContent = 'Enter';
+
+  modal.append(closeBtn, title, desc, countryLabel, countrySelect, langLabel, langSelect, enterBtn);
+  overlay.append(modal);
+
+  const close = () => {
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  };
+
+  closeBtn.addEventListener('click', close);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  window.addEventListener('keydown', (e) => { if (e.code === 'Escape') close(); });
+
+  enterBtn.addEventListener('click', () => {
+    close();
+  });
+
+  return { overlay, open: () => {
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    countrySelect.focus();
+  } };
+}
+
 function buildSearch() {
   const wrapper = document.createElement('div');
   wrapper.className = 'nav-search';
@@ -132,6 +234,28 @@ export default async function decorate(block) {
     navTools.querySelectorAll(':scope > ul > li > a img').forEach((img) => {
       img.closest('li')?.classList.add('nav-locale');
     });
+
+    // build locale modal and attach to locale nav item
+    const { overlay, open } = buildLocaleModal();
+    document.body.append(overlay);
+    const localeLi = navTools.querySelector('.nav-locale');
+    if (localeLi) {
+      localeLi.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        open();
+      });
+    } else {
+      // fallback: attach to last tools item (Language selector)
+      const lastLi = navTools.querySelector(':scope > ul > li:last-child');
+      if (lastLi) {
+        lastLi.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          open();
+        });
+      }
+    }
   }
 
   // hamburger for mobile
