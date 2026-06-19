@@ -314,9 +314,12 @@ header nav .nav-locale a {
   font-size: 14px;
 }
 
-header nav .nav-locale img {
+header nav .nav-locale-flag {
+  display: block;
   width: 20px;
-  height: 20px;
+  height: 15px;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
 /* ── Mobile (default, < 900px) ────────────────────── */

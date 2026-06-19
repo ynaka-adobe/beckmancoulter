@@ -230,31 +230,51 @@ export default async function decorate(block) {
   const navTools = nav.querySelector('.nav-tools');
   if (navTools) {
     decorateDropdowns(navTools);
-    // tag locale entry (the one containing a flag image)
-    navTools.querySelectorAll(':scope > ul > li > a img').forEach((img) => {
-      img.closest('li')?.classList.add('nav-locale');
+
+    // find the locale li — either one already containing a flag img, or the
+    // plain-text "English" / "Language" item produced by the nav document
+    let localeLi = null;
+    navTools.querySelectorAll(':scope > ul > li').forEach((li) => {
+      if (li.querySelector('a img')) {
+        li.classList.add('nav-locale');
+        localeLi = li;
+      } else if (/english|language/i.test(li.textContent.trim())) {
+        li.classList.add('nav-locale');
+        localeLi = li;
+      }
     });
 
-    // build locale modal and attach to locale nav item
+    // if the locale li has no <a> yet (plain <p> text), replace with a proper link
+    if (localeLi && !localeLi.querySelector('a')) {
+      const label = localeLi.textContent.trim() || 'English';
+      localeLi.textContent = '';
+      const link = document.createElement('a');
+      link.href = '#';
+      link.setAttribute('aria-label', `${label} — change country/language`);
+
+      const flag = document.createElement('img');
+      flag.src = 'https://flagcdn.com/20x15/us.png';
+      flag.width = 20;
+      flag.height = 15;
+      flag.alt = 'US flag';
+      flag.className = 'nav-locale-flag';
+
+      const text = document.createElement('span');
+      text.textContent = label;
+
+      link.append(flag, text);
+      localeLi.append(link);
+    }
+
+    // build locale modal and wire to the locale li
     const { overlay, open } = buildLocaleModal();
     document.body.append(overlay);
-    const localeLi = navTools.querySelector('.nav-locale');
     if (localeLi) {
       localeLi.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         open();
       });
-    } else {
-      // fallback: attach to last tools item (Language selector)
-      const lastLi = navTools.querySelector(':scope > ul > li:last-child');
-      if (lastLi) {
-        lastLi.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          open();
-        });
-      }
     }
   }
 
