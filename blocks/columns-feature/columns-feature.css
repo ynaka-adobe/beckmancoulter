@@ -107,7 +107,8 @@ main .columns-feature a.button:any-link {
 }
 
 .columns-feature.columns-feature-5-cols a:hover {
-  color: var(--brand-primary);
+  background-color: var(--brand-primary);
+  color: #fff;
   text-decoration: none;
 }
 
@@ -115,12 +116,11 @@ main .columns-feature a.button:any-link {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-color);
   transition: color 0.15s ease;
 }
 
 .columns-feature.columns-feature-5-cols a:hover .columns-feature-icon {
-  color: var(--brand-primary);
+  color: #fff;
 }
 
 /* strip default paragraph/link spacing around the picture.
