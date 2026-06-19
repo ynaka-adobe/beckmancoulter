@@ -301,6 +301,16 @@ header nav .nav-search {
     cursor: pointer;
   }
 
+  header nav .nav-tools > ul > li + li::before {
+    content: '';
+    display: inline-block;
+    width: 1px;
+    height: 1em;
+    background: #ccc;
+    margin: 0 12px;
+    vertical-align: middle;
+  }
+
   header nav .nav-tools > ul > li > a {
     color: #000;
     position: relative;
