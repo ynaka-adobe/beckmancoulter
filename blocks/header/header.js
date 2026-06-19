@@ -102,6 +102,15 @@ export default async function decorate(block) {
     }
   });
 
+  // decorateButtons (run by decorateMain) turns <p><a> patterns into .button /
+  // .button-container — strip those classes so nav links render as plain text.
+  nav.querySelectorAll('a.button, a.button-primary, a.button-secondary').forEach((a) => {
+    a.classList.remove('button', 'button-primary', 'button-secondary');
+  });
+  nav.querySelectorAll('.button-container').forEach((p) => {
+    p.classList.remove('button-container');
+  });
+
   // sections in fragment order: brand, main-nav, tools
   const classes = ['brand', 'sections', 'tools'];
   classes.forEach((c, i) => {
