@@ -302,8 +302,17 @@ header nav .nav-search {
   }
 
   header nav .nav-tools > ul > li > a {
-    font-size: 15px;
-    color: var(--text-color);
+    color: #000;
+    position: relative;
+    font-family: ProximaNova, Montserrat, sans-serif;
+    font-size: 0.87em;
+    letter-spacing: 0;
+    line-height: 2em;
+    text-decoration: none;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
   }
 
   header nav .nav-tools .nav-drop > ul {
@@ -347,10 +356,24 @@ header nav .nav-search {
 
   header nav .nav-sections > ul > li {
     border-bottom: none;
-    padding: 18px 0;
+    padding: 0px 0;
     margin-right: 64px;
     position: relative;
     cursor: pointer;
+    text-transform: uppercase;
+    font-family: Montserrat;
+    font-weight: 500;
+    font-size: 12px;
+    color: #000;
+    letter-spacing: .03125em;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    text-decoration: none;
+     /* override uppercase from mobile */
   }
 
   /* dropdown caret */
