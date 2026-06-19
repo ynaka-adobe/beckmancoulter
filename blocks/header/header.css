@@ -33,8 +33,8 @@ header nav .nav-brand {
 header nav .nav-brand p { margin: 0; }
 
 header nav .nav-brand img {
-  width: 200px;
-  height: auto;
+  width: 100px;
+  height: 28.4px;
 }
 
 /* ── Hamburger (mobile only) ──────────────────────── */
@@ -268,7 +268,8 @@ header nav .nav-search {
   }
 
   header nav .nav-brand img {
-    width: 150px;
+    width: 100px;
+    height: 28.4px;
   }
 
   /* row 1 right: utility links */
