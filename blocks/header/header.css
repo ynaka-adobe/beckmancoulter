@@ -291,7 +291,7 @@ header nav .nav-search {
   header nav .nav-tools > ul {
     display: flex;
     align-items: center;
-    gap: 28px;
+    gap: 0;
   }
 
   header nav .nav-tools > ul > li {
@@ -299,16 +299,18 @@ header nav .nav-search {
     padding: 0;
     position: relative;
     cursor: pointer;
+    display: flex;
+    align-items: center;
   }
 
   header nav .nav-tools > ul > li + li::before {
     content: '';
-    display: inline-block;
+    display: block;
     width: 1px;
     height: 1em;
     background: #ccc;
     margin: 0 12px;
-    vertical-align: middle;
+    flex-shrink: 0;
   }
 
   header nav .nav-tools > ul > li > a {
