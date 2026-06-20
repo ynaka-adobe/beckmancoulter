@@ -19,15 +19,7 @@ import {
  */
 export async function loadFragment(path) {
   if (path) { //  && path.startsWith('/')
-    // Normalize to a relative path so the fetch goes through the local dev
-    // server proxy instead of hitting aem.page directly (which has no CORS headers).
-    let relativePath = path;
-    try {
-      relativePath = new URL(path).pathname;
-    } catch {
-      // already relative
-    }
-    const resp = await fetch(`${relativePath}.plain.html`);
+    const resp = await fetch(`${path}.plain.html`);
     if (resp.ok) {
       const main = document.createElement('main');
       main.innerHTML = await resp.text();
@@ -35,7 +27,7 @@ export async function loadFragment(path) {
       // reset base path for media to fragment base
       const resetAttributeBase = (tag, attr) => {
         main.querySelectorAll(`${tag}[${attr}^="./media_"]`).forEach((elem) => {
-          elem[attr] = new URL(elem.getAttribute(attr), new URL(relativePath, window.location)).href;
+          elem[attr] = new URL(elem.getAttribute(attr), new URL(path, window.location)).href;
         });
       };
       resetAttributeBase('img', 'src');
