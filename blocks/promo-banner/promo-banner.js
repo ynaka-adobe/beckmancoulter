@@ -44,9 +44,13 @@ function getEffectiveDate() {
 }
 
 async function resolvePromoFragment(schedulerUrl) {
+  // Strip origin so the fetch goes through the local dev server proxy
+  let fetchUrl = schedulerUrl;
+  try { fetchUrl = new URL(schedulerUrl).pathname; } catch { /* already relative */ }
+
   let resp;
   try {
-    resp = await fetch(schedulerUrl);
+    resp = await fetch(fetchUrl);
   } catch {
     return null;
   }
