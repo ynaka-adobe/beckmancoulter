@@ -22,6 +22,8 @@ import {
   applyTargetHeroMboxIfConfigured,
 } from './target.js';
 
+export const NX_ORIGIN = 'https://da.live';
+
 /**
  * Builds hero block and prepends to main in a new section.
  * @param {Element} main The container element
