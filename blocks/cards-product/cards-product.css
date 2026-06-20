@@ -21,7 +21,7 @@
   flex: 1 1 100%;
   display: flex;
   flex-direction: column;
-  background-color: var(--background-color);
+  background-color: #fff !important;
 }
 
 .cards-product > ul > li img {
