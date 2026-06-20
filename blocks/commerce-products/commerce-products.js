@@ -76,7 +76,7 @@ function renderProducts(products) {
     const li = document.createElement('li');
     li.className = 'commerce-products-card';
     li.innerHTML = `
-      <a href="https://www.aemshop.net/${product.url_key}.html" target="_blank" rel="noopener">
+      <a href="https://www.aemshop.net/products/${product.url_key}/${product.sku.toLowerCase()}" target="_blank" rel="noopener">
         <div class="commerce-products-image">
           <img src="${product.small_image.url}" alt="${product.small_image.label || product.name}" loading="eager" crossorigin="anonymous" onerror="this.style.display='none'">
         </div>
