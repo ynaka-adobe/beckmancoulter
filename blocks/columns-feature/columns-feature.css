@@ -88,6 +88,7 @@ main .columns-feature a.button:any-link {
   order: unset;
   padding: 0;
   text-align: center;
+  border-top: 4px solid #983cc9 !important;
   border-right: 1px solid #e5e5e5;
 }
 
