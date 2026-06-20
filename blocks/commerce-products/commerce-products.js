@@ -51,14 +51,18 @@ function testImage(url) {
   });
 }
 
+const EXCLUDED_PRODUCTS = ['Adobe Life tee', 'Adobe Staff event tee'];
+
 async function filterProductsWithImages(products) {
   const results = await Promise.all(
-    products.map(async (p) => {
-      const url = p.small_image?.url;
-      if (!url) return null;
-      const ok = await testImage(url);
-      return ok ? p : null;
-    }),
+    products
+      .filter((p) => !EXCLUDED_PRODUCTS.includes(p.name))
+      .map(async (p) => {
+        const url = p.small_image?.url;
+        if (!url) return null;
+        const ok = await testImage(url);
+        return ok ? p : null;
+      }),
   );
   return results.filter(Boolean);
 }
