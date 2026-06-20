@@ -42,6 +42,27 @@ function formatPrice(value, currency) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(value);
 }
 
+function testImage(url) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+    img.src = url;
+  });
+}
+
+async function filterProductsWithImages(products) {
+  const results = await Promise.all(
+    products.map(async (p) => {
+      const url = p.small_image?.url;
+      if (!url) return null;
+      const ok = await testImage(url);
+      return ok ? p : null;
+    }),
+  );
+  return results.filter(Boolean);
+}
+
 function renderProducts(products) {
   const ul = document.createElement('ul');
   ul.className = 'commerce-products-grid';
@@ -80,7 +101,9 @@ export default async function decorate(block) {
   block.append(loading);
 
   try {
-    const products = await fetchProducts(search, pageSize);
+    // Fetch extra to account for any that fail the image check
+    const raw = await fetchProducts(search, pageSize * 2);
+    const products = (await filterProductsWithImages(raw)).slice(0, pageSize);
     loading.remove();
     if (products.length === 0) {
       block.innerHTML = '<p>No products found.</p>';
