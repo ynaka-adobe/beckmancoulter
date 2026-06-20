@@ -119,10 +119,12 @@ main .columns-feature.columns-feature-5-cols a.button:any-link {
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.columns-feature.columns-feature-5-cols a:hover {
+.columns-feature.columns-feature-5-cols a:hover,
+main .columns-feature.columns-feature-5-cols a.button:hover {
   background-color: var(--brand-primary);
   color: #fff;
   text-decoration: none;
+  opacity: 1;
 }
 
 .columns-feature.columns-feature-5-cols .columns-feature-icon {
@@ -130,9 +132,11 @@ main .columns-feature.columns-feature-5-cols a.button:any-link {
   align-items: center;
   justify-content: center;
   transition: color 0.15s ease;
+  color: var(--text-color);
 }
 
-.columns-feature.columns-feature-5-cols a:hover .columns-feature-icon {
+.columns-feature.columns-feature-5-cols a:hover .columns-feature-icon,
+main .columns-feature.columns-feature-5-cols a.button:hover .columns-feature-icon {
   color: #fff;
 }
 
