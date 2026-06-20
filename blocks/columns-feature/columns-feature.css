@@ -68,7 +68,7 @@ main .columns-feature a.button:any-link {
 /* Full-bleed: break out of the section's max-width container */
 .columns-feature-5-cols.columns-feature-wrapper {
   max-width: 100% !important;
-  padding: 0 !important;
+  padding: 15px 14px !important;
   margin: 0;
 }
 
