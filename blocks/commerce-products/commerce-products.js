@@ -38,6 +38,12 @@ async function fetchProducts(search, pageSize) {
   return data?.products?.items ?? [];
 }
 
+function optimizeImageUrl(url) {
+  // Strip the /cache/{hash}/ segment and add image optimization params
+  const clean = url.replace(/\/cache\/[^/]+\//, '/');
+  return `${clean}?auto=webp&quality=80&crop=false&fit=cover&width=400`;
+}
+
 function formatPrice(value, currency) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(value);
 }
@@ -58,7 +64,7 @@ async function filterProductsWithImages(products) {
     products
       .filter((p) => !EXCLUDED_PRODUCTS.includes(p.name))
       .map(async (p) => {
-        const url = p.small_image?.url;
+        const url = p.small_image?.url ? optimizeImageUrl(p.small_image.url) : null;
         if (!url) return null;
         const ok = await testImage(url);
         return ok ? p : null;
@@ -78,7 +84,7 @@ function renderProducts(products) {
     li.innerHTML = `
       <a href="https://www.aemshop.net/products/${product.url_key}/${product.sku.toLowerCase()}" target="_blank" rel="noopener">
         <div class="commerce-products-image">
-          <img src="${product.small_image.url}" alt="${product.small_image.label || product.name}" loading="eager" crossorigin="anonymous" onerror="this.style.display='none'">
+          <img src="${optimizeImageUrl(product.small_image.url)}" alt="${product.small_image.label || product.name}" loading="eager" onerror="this.style.display='none'">
         </div>
         <div class="commerce-products-body">
           <p class="commerce-products-name">${product.name}</p>
