@@ -8,7 +8,7 @@
  *   Row 2: number of products to show (optional, default 4)
  */
 
-const GRAPHQL_ENDPOINT = 'https://venia.magento.com/graphql';
+const GRAPHQL_ENDPOINT = 'https://www.aemshop.net/graphql';
 
 async function fetchProducts(search, pageSize) {
   const query = `{
