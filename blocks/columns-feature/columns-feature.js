@@ -55,6 +55,11 @@ export default function decorate(block) {
     });
   });
 
+  // quick-links variant: also mark the wrapper for full-bleed CSS
+  if (cols.length >= 5) {
+    block.closest('.columns-feature-wrapper')?.classList.add('columns-feature-5-cols');
+  }
+
   // inject icons for the quick-links (5-col) variant
   if (cols.length >= 5) {
     [...block.firstElementChild.children].forEach((col) => {

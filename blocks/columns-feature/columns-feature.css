@@ -64,6 +64,14 @@ main .columns-feature a.button:any-link {
 }
 
 /* ===== quick-links bar variant (5+ cols) ===== */
+
+/* Full-bleed: break out of the section's max-width container */
+.columns-feature-5-cols.columns-feature-wrapper {
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0;
+}
+
 .columns-feature.columns-feature-5-cols {
   border-top: 3px solid var(--brand-primary);
   border-bottom: 1px solid #e5e5e5;
