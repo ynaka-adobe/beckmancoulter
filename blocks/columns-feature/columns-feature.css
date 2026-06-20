@@ -99,7 +99,8 @@ main .columns-feature a.button:any-link {
   margin: 0;
 }
 
-.columns-feature.columns-feature-5-cols a {
+.columns-feature.columns-feature-5-cols a,
+main .columns-feature.columns-feature-5-cols a.button:any-link {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -110,8 +111,11 @@ main .columns-feature a.button:any-link {
   font-weight: 400;
   font-family: var(--body-font-family);
   color: var(--text-color);
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
   text-decoration: none;
-  transition: color 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .columns-feature.columns-feature-5-cols a:hover {
