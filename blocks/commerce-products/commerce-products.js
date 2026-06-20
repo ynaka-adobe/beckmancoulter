@@ -57,12 +57,9 @@ function testImage(url) {
   });
 }
 
-const EXCLUDED_PRODUCTS = ['Adobe Life tee', 'Adobe Staff event tee'];
-
 async function filterProductsWithImages(products) {
   const results = await Promise.all(
     products
-      .filter((p) => !EXCLUDED_PRODUCTS.includes(p.name))
       .map(async (p) => {
         const url = p.small_image?.url ? optimizeImageUrl(p.small_image.url) : null;
         if (!url) return null;
