@@ -42,6 +42,31 @@
   justify-content: center;
   align-items: flex-start;
   overflow: hidden;
+  border-top: 4px solid var(--brand-primary);
+  border-right: 1px solid color-mix(in srgb, var(--brand-primary) 30%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--brand-primary) 30%, transparent);
+  border-left: 1px solid color-mix(in srgb, var(--brand-primary) 30%, transparent);
+  transition: background-color 0.2s ease;
+}
+
+.cards-product > ul > li:has(.cards-product-card-image):hover {
+  background-color: var(--brand-primary);
+}
+
+.cards-product > ul > li:has(.cards-product-card-image):hover .cards-product-card-image {
+  opacity: 0.15;
+}
+
+.cards-product > ul > li:has(.cards-product-card-image):hover .cards-product-card-body h1,
+.cards-product > ul > li:has(.cards-product-card-image):hover .cards-product-card-body h2,
+.cards-product > ul > li:has(.cards-product-card-image):hover .cards-product-card-body h3,
+.cards-product > ul > li:has(.cards-product-card-image):hover .cards-product-card-body h4 {
+  color: #fff;
+}
+
+.cards-product > ul > li:has(.cards-product-card-image):hover .cards-product-card-body a.button:any-link {
+  border-color: #fff;
+  color: #fff;
 }
 
 /* background image */
@@ -119,9 +144,26 @@
  * ============================================================ */
 .cards-product > ul > li:not(:has(.cards-product-card-image)) {
   border-top: 4px solid var(--brand-primary);
-  box-shadow: rgb(0 0 0 / 10%) 0 2px 2px 0;
+  border-right: 1px solid color-mix(in srgb, var(--brand-primary) 30%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--brand-primary) 30%, transparent);
+  border-left: 1px solid color-mix(in srgb, var(--brand-primary) 30%, transparent);
+  background-color: #fff;
   text-align: center;
   padding: 24px 16px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.cards-product > ul > li:not(:has(.cards-product-card-image)):hover {
+  background-color: var(--brand-primary);
+}
+
+.cards-product > ul > li:not(:has(.cards-product-card-image)):hover h1,
+.cards-product > ul > li:not(:has(.cards-product-card-image)):hover h2,
+.cards-product > ul > li:not(:has(.cards-product-card-image)):hover h3,
+.cards-product > ul > li:not(:has(.cards-product-card-image)):hover p,
+.cards-product > ul > li:not(:has(.cards-product-card-image)):hover a:any-link,
+.cards-product > ul > li:not(:has(.cards-product-card-image)):hover a.button:any-link {
+  color: #fff;
 }
 
 /* the empty/first body cell acts as the icon slot */
