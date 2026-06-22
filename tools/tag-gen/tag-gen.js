@@ -5,18 +5,8 @@ const API_KEY = '9d14e19963fb4f7b96cbf6c26aea9139';
 // CLIENT_SECRET loaded from /tools/tag-gen/config.json (gitignored)
 
 async function getTargetToken() {
-  const { clientSecret } = await fetch('/tools/tag-gen/config.json').then((r) => r.json());
-  const resp = await fetch('https://ims-na1.adobelogin.com/ims/token/v3', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'client_credentials',
-      client_id: API_KEY,
-      client_secret: clientSecret,
-      scope: 'openid,AdobeID,read_organizations,additional_info.projectedProductContext,target_sdk',
-    }),
-  });
-  const { access_token: accessToken } = await resp.json();
+  const { accessToken } = await fetch('/tools/tag-gen/config.json').then((r) => r.json());
+  if (!accessToken) throw new Error('No access token in config.json — run: node tools/tag-gen/refresh-token.js');
   return accessToken;
 }
 
