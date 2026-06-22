@@ -90,7 +90,7 @@ async function main(params) {
 
       const xtBody = {
         name,
-        state: 'saved',
+        state: 'approved',
         priority: 0,
         locations: {
           mboxes: [{ locationLocalId: 0, name: mbox }],
