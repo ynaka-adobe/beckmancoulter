@@ -57,15 +57,68 @@ async function main(params) {
     if (resource === 'offers') {
       data = await targetRequest('GET', '/offers?sortBy=name&limit=100', tenant, clientId, token);
 
-    } else if (resource === 'update-offer' && activityId && activityType && offerId) {
-      // Fetch current activity definition
-      const activity = await targetRequest('GET', `/activities/${activityType}/${activityId}`, tenant, clientId, token);
+    } else if (resource === 'audiences') {
+      data = await targetRequest('GET', '/audiences?limit=100', tenant, clientId, token);
 
-      if (activity.httpStatus >= 400) {
-        return { statusCode: activity.httpStatus, body: JSON.stringify(activity) };
+    } else if (resource === 'create-xt') {
+      // body arrives as a JSON string in params.__ow_body for POST, or as parsed params for GET
+      let activityDef;
+      if (params.__ow_body) {
+        activityDef = JSON.parse(
+          Buffer.isBuffer(params.__ow_body)
+            ? params.__ow_body.toString()
+            : params.__ow_body,
+        );
+      } else {
+        // Passed as flat query params — reconstruct minimal definition
+        activityDef = {
+          name: params.name,
+          mbox: params.mbox || 'target-global-mbox',
+          offerId: Number(params.offerId),
+          audienceId: params.audienceId ? Number(params.audienceId) : null,
+        };
       }
 
-      // Replace every offer reference in all experiences with the new offerId
+      const { name, mbox = 'target-global-mbox', offerId: oId, audienceId } = activityDef;
+
+      const xtBody = {
+        name,
+        state: 'saved',
+        priority: 0,
+        locations: {
+          mboxes: [{ locationLocalId: 0, name: mbox }],
+        },
+        experiences: [
+          {
+            id: 0,
+            name: 'Experience A',
+            audienceIds: audienceId ? [audienceId] : [],
+            offerLocations: [{ locationLocalId: 0, offerId: Number(oId) }],
+          },
+        ],
+        metrics: [
+          {
+            id: 0,
+            name: 'Entry',
+            type: 'entry',
+            mboxes: [{ name: mbox }],
+          },
+        ],
+      };
+
+      data = await targetRequest('POST', '/activities/xt', tenant, clientId, token, xtBody);
+
+    } else if (resource === 'update-offer' && activityId && activityType && offerId) {
+      const getPath = `/activities/${activityType}/${activityId}?version=3`;
+      const activity = await targetRequest('GET', getPath, tenant, clientId, token);
+
+      if (activity.httpStatus >= 400) {
+        return {
+          statusCode: activity.httpStatus,
+          body: JSON.stringify({ raw: activity, hint: 'GET activity failed — VEC options not supported by Admin API v1' }),
+        };
+      }
+
       if (activity.experiences) {
         activity.experiences.forEach((exp) => {
           if (exp.offerLocations) {
@@ -74,7 +127,7 @@ async function main(params) {
         });
       }
 
-      data = await targetRequest('PUT', `/activities/${activityType}/${activityId}`, tenant, clientId, token, activity);
+      data = await targetRequest('PUT', `/activities/${activityType}/${activityId}?version=3`, tenant, clientId, token, activity);
 
     } else {
       data = await targetRequest('GET', '/activities', tenant, clientId, token);

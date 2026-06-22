@@ -1,105 +1,168 @@
 import DA_SDK from 'https://da.live/nx/utils/sdk.js';
 
-const CLIENT_ID = '9d14e19963fb4f7b96cbf6c26aea9139';
-const TENANT = 'acsmarketing';
-const IMS_BASE = 'https://ims-na1.adobelogin.com';
-const SCOPES = 'openid,AdobeID,read_organizations';
-const TOKEN_KEY = 'tag-gen-ims-token';
-
-function getRedirectUri() {
-  return `${window.location.origin}${window.location.pathname}`;
-}
-
-function base64urlEncode(buffer) {
-  return btoa(String.fromCharCode(...new Uint8Array(buffer)))
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-}
-
-function generateVerifier() {
-  const bytes = new Uint8Array(32);
-  crypto.getRandomValues(bytes);
-  return base64urlEncode(bytes.buffer);
-}
-
-async function generateChallenge(verifier) {
-  const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
-  return base64urlEncode(hash);
-}
-
-async function startOAuth() {
-  const verifier = generateVerifier();
-  const challenge = await generateChallenge(verifier);
-  sessionStorage.setItem('pkce_verifier', verifier);
-
-  const params = new URLSearchParams({
-    client_id: CLIENT_ID,
-    scope: SCOPES,
-    response_type: 'code',
-    redirect_uri: getRedirectUri(),
-    code_challenge: challenge,
-    code_challenge_method: 'S256',
-  });
-
-  window.location.href = `${IMS_BASE}/ims/authorize/v2?${params}`;
-}
-
-async function exchangeCode(code) {
-  const verifier = sessionStorage.getItem('pkce_verifier');
-  sessionStorage.removeItem('pkce_verifier');
-
-  const resp = await fetch(`${IMS_BASE}/ims/token/v3`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'authorization_code',
-      client_id: CLIENT_ID,
-      code,
-      redirect_uri: getRedirectUri(),
-      code_verifier: verifier,
-    }),
-  });
-
-  const data = await resp.json();
-  if (!data.access_token) throw new Error(`Token exchange failed: ${data.error_description ?? data.error}`);
-  return data.access_token;
-}
-
-async function getToken() {
-  const stored = sessionStorage.getItem(TOKEN_KEY);
-  if (stored) return stored;
-
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get('code');
-  if (code) {
-    const token = await exchangeCode(code);
-    sessionStorage.setItem(TOKEN_KEY, token);
-    window.history.replaceState({}, '', window.location.pathname);
-    return token;
-  }
-
-  await startOAuth();
-  return null;
-}
-
 const RUNTIME_URL = 'https://332794-868ceruleanwhale.adobeioruntime.net/api/v1/web/default/target-activities';
 
+async function runtimeFetch(params) {
+  const url = `${RUNTIME_URL}?${new URLSearchParams(params)}`;
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error(`Runtime error: ${resp.status}`);
+  return resp.json();
+}
+
 async function fetchActivities() {
-  const resp = await fetch(RUNTIME_URL);
-  if (!resp.ok) throw new Error(`Target API error: ${resp.status}`);
-  const { activities } = await resp.json();
+  const { activities } = await runtimeFetch({});
   return activities ?? [];
 }
 
 async function fetchOffers() {
-  const resp = await fetch(`${RUNTIME_URL}?resource=offers`);
-  if (!resp.ok) throw new Error(`Offers API error: ${resp.status}`);
-  const { offers } = await resp.json();
+  const { offers } = await runtimeFetch({ resource: 'offers' });
   return offers ?? [];
+}
+
+async function fetchAudiences() {
+  const { audiences } = await runtimeFetch({ resource: 'audiences' });
+  return audiences ?? [];
+}
+
+async function createXtActivity({ name, mbox, offerId, audienceId }) {
+  return runtimeFetch({
+    resource: 'create-xt',
+    name,
+    mbox: mbox || 'target-global-mbox',
+    offerId,
+    ...(audienceId ? { audienceId } : {}),
+  });
 }
 
 function formatDate(iso) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
+
+// ── Create XT activity modal ────────────────────────────────────────────────
+
+function field(label, input) {
+  const wrap = document.createElement('div');
+  wrap.className = 'form-field';
+  const lbl = document.createElement('label');
+  lbl.textContent = label;
+  wrap.append(lbl, input);
+  return wrap;
+}
+
+async function showCreateXtModal(onCreated) {
+  document.querySelector('.create-xt-modal')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'offers-modal create-xt-modal';
+
+  const panel = document.createElement('div');
+  panel.className = 'offers-panel create-panel';
+
+  const header = document.createElement('div');
+  header.className = 'offers-header';
+  header.innerHTML = '<h3>Create Experience Targeting Activity</h3>';
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'offers-close';
+  closeBtn.textContent = '✕';
+  closeBtn.addEventListener('click', () => overlay.remove());
+  header.append(closeBtn);
+
+  const form = document.createElement('div');
+  form.className = 'create-form';
+
+  // Name
+  const nameInput = document.createElement('input');
+  nameInput.type = 'text';
+  nameInput.placeholder = 'e.g. homepage-promo-june';
+  form.append(field('Activity Name', nameInput));
+
+  // Mbox
+  const mboxInput = document.createElement('input');
+  mboxInput.type = 'text';
+  mboxInput.value = 'target-global-mbox';
+  form.append(field('Mbox / Location', mboxInput));
+
+  // Loading state for selects
+  const loadingNote = document.createElement('p');
+  loadingNote.className = 'loading';
+  loadingNote.textContent = 'Loading offers and audiences…';
+  form.append(loadingNote);
+
+  const footer = document.createElement('div');
+  footer.className = 'offers-footer';
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'btn-change';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.addEventListener('click', () => overlay.remove());
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'btn-create';
+  saveBtn.textContent = 'Create';
+  saveBtn.disabled = true;
+  footer.append(cancelBtn, saveBtn);
+
+  panel.append(header, form, footer);
+  overlay.append(panel);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  document.body.append(overlay);
+
+  // Load offers + audiences in parallel
+  try {
+    const [offers, audiences] = await Promise.all([fetchOffers(), fetchAudiences()]);
+    loadingNote.remove();
+
+    // Offer select
+    const offerSel = document.createElement('select');
+    offerSel.append(new Option('— select an offer —', ''));
+    offers.forEach((o) => offerSel.append(new Option(o.name, o.id)));
+    form.append(field('Offer', offerSel));
+
+    // Audience select
+    const audSel = document.createElement('select');
+    audSel.append(new Option('All Visitors (no audience)', ''));
+    audiences.forEach((a) => audSel.append(new Option(a.name, a.id)));
+    form.append(field('Audience', audSel));
+
+    saveBtn.disabled = false;
+
+    saveBtn.addEventListener('click', async () => {
+      const name = nameInput.value.trim();
+      const mbox = mboxInput.value.trim() || 'target-global-mbox';
+      const offerId = offerSel.value;
+      const audienceId = audSel.value || null;
+
+      if (!name) { nameInput.focus(); return; }
+      if (!offerId) { offerSel.focus(); return; }
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Creating…';
+
+      const errEl = footer.querySelector('.offers-error') || (() => {
+        const el = document.createElement('p');
+        el.className = 'offers-error';
+        footer.prepend(el);
+        return el;
+      })();
+      errEl.textContent = '';
+
+      try {
+        const result = await createXtActivity({ name, mbox, offerId, audienceId });
+        if (result.httpStatus >= 400 || result.error) {
+          throw new Error(result.errors?.[0]?.message || result.error || 'Create failed');
+        }
+        overlay.remove();
+        onCreated(result);
+      } catch (err) {
+        errEl.textContent = `Error: ${err.message}`;
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Create';
+      }
+    });
+  } catch (err) {
+    loadingNote.textContent = `Failed to load data: ${err.message}`;
+  }
+}
+
+// ── Change experience / offers modal ───────────────────────────────────────
 
 function showOffersModal(offers, activity) {
   document.querySelector('.offers-modal')?.remove();
@@ -112,7 +175,7 @@ function showOffersModal(offers, activity) {
 
   const header = document.createElement('div');
   header.className = 'offers-header';
-  header.innerHTML = `<h3>Select Offer</h3>`;
+  header.innerHTML = '<h3>Select Offer</h3>';
   const closeBtn = document.createElement('button');
   closeBtn.className = 'offers-close';
   closeBtn.textContent = '✕';
@@ -134,18 +197,13 @@ function showOffersModal(offers, activity) {
 
   const tbody = document.createElement('tbody');
   let selectedOffer = null;
-
-  // Pre-select offer whose name matches the activity name (case-insensitive)
   const currentName = (activity?.name || '').toLowerCase();
 
   offers.forEach((o) => {
     const tr = document.createElement('tr');
     tr.className = 'offer-row';
     const isMatch = o.name.toLowerCase() === currentName;
-    if (isMatch) {
-      tr.classList.add('selected');
-      selectedOffer = o;
-    }
+    if (isMatch) { tr.classList.add('selected'); selectedOffer = o; }
     tr.innerHTML = `
       <td class="select-cell"><span class="radio"></span></td>
       <td>${o.name}</td>
@@ -187,6 +245,8 @@ function showOffersModal(offers, activity) {
   document.body.append(overlay);
 }
 
+// ── Action bar ─────────────────────────────────────────────────────────────
+
 const ACTIVITY_TYPES = [
   'A/B Test',
   'Automated Personalization',
@@ -195,7 +255,7 @@ const ACTIVITY_TYPES = [
   'Recommendations',
 ];
 
-function renderActionBar() {
+function renderActionBar(onActivityCreated) {
   const wrapper = document.createElement('div');
   wrapper.className = 'action-bar';
 
@@ -205,12 +265,17 @@ function renderActionBar() {
 
   const flyout = document.createElement('ul');
   flyout.className = 'flyout hidden';
+
   ACTIVITY_TYPES.forEach((type) => {
     const li = document.createElement('li');
     li.textContent = type;
     li.addEventListener('click', () => {
-      alert(`Create ${type} — hook this up to your workflow`);
       flyout.classList.add('hidden');
+      if (type === 'Experience Targeting') {
+        showCreateXtModal(onActivityCreated);
+      } else {
+        alert(`${type} creation via API coming soon`);
+      }
     });
     flyout.append(li);
   });
@@ -253,7 +318,9 @@ function renderActionBar() {
   return wrapper;
 }
 
-function renderActivities(activities) {
+// ── Activities table ────────────────────────────────────────────────────────
+
+function renderActivities(activities, onActivityCreated) {
   const container = document.createElement('div');
   container.className = 'activities';
 
@@ -275,7 +342,7 @@ function renderActivities(activities) {
     </thead>
   `;
 
-  const actionBar = renderActionBar();
+  const actionBar = renderActionBar(onActivityCreated);
   let selectedRow = null;
 
   const tbody = document.createElement('tbody');
@@ -307,11 +374,12 @@ function renderActivities(activities) {
 
   table.append(tbody);
   container.append(table, actionBar);
-  return container;
+  return { container, tbody, actionBar };
 }
 
+// ── Init ────────────────────────────────────────────────────────────────────
+
 (async function init() {
-  // DA SDK resolves only inside DA iframe; fall back gracefully when standalone
   const daContext = await Promise.race([
     DA_SDK,
     new Promise((resolve) => setTimeout(() => resolve(null), 1500)),
@@ -324,9 +392,19 @@ function renderActivities(activities) {
   document.body.innerHTML = '<p class="loading">Loading Target activities…</p>';
 
   try {
-    const activities = await fetchActivities();
+    let activities = await fetchActivities();
     document.body.innerHTML = '';
-    document.body.append(renderActivities(activities));
+
+    function onActivityCreated(newActivity) {
+      // Prepend newly created activity to the list and re-render
+      activities = [newActivity, ...activities];
+      document.body.innerHTML = '';
+      const { container } = renderActivities(activities, onActivityCreated);
+      document.body.append(container);
+    }
+
+    const { container } = renderActivities(activities, onActivityCreated);
+    document.body.append(container);
   } catch (err) {
     document.body.innerHTML = `<p class="error">${err.message}</p>`;
   }

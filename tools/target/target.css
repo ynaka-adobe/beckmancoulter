@@ -225,6 +225,43 @@ th { font-weight: 700; }
   color: #c00;
 }
 
+/* Create XT form */
+.create-panel { max-width: 520px; }
+
+.create-form {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+}
+
+.form-field input,
+.form-field select {
+  padding: 8px 10px;
+  font-size: 14px;
+  font-family: inherit;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.form-field input:focus,
+.form-field select:focus { border-color: #4b6ef5; }
+
 .state {
   display: inline-block;
   padding: 2px 10px;
