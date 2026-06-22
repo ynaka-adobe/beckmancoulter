@@ -135,6 +135,41 @@
   left: calc(50% - 2px);
 }
 
+/* Dark variation */
+.carousel.dark .carousel-slide-indicators {
+  background-color: var(--dark-color);
+}
+
+.carousel.dark .carousel-slide-indicator button {
+  background-color: rgb(255 255 255 / 40%);
+}
+
+.carousel.dark .carousel-slide-indicator button:disabled,
+.carousel.dark .carousel-slide-indicator button:hover,
+.carousel.dark .carousel-slide-indicator button:focus-visible {
+  background-color: var(--background-color);
+}
+
+.carousel.dark .carousel-navigation-buttons button {
+  background-color: rgb(255 255 255 / 25%);
+  color: white;
+}
+
+.carousel.dark .carousel-navigation-buttons button:hover,
+.carousel.dark .carousel-navigation-buttons button:focus-visible {
+  background-color: rgb(255 255 255 / 75%);
+  color: var(--dark-color);
+}
+
+.carousel.dark .carousel-navigation-buttons button::after {
+  border-color: white;
+}
+
+.carousel.dark .carousel-navigation-buttons button:hover::after,
+.carousel.dark .carousel-navigation-buttons button:focus-visible::after {
+  border-color: var(--dark-color);
+}
+
 @media (width >= 600px) {
   .carousel .carousel-navigation-buttons {
     left: 24px;
