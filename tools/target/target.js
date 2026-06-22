@@ -99,6 +99,45 @@ function formatDate(iso) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+const ACTIVITY_TYPES = [
+  'A/B Test',
+  'Automated Personalization',
+  'Experience Targeting',
+  'Multivariate Test',
+  'Recommendations',
+];
+
+function renderCreateFlyout() {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'create-bar hidden';
+
+  const btn = document.createElement('button');
+  btn.className = 'btn-create';
+  btn.textContent = 'Create Activity';
+
+  const flyout = document.createElement('ul');
+  flyout.className = 'flyout hidden';
+  ACTIVITY_TYPES.forEach((type) => {
+    const li = document.createElement('li');
+    li.textContent = type;
+    li.addEventListener('click', () => {
+      alert(`Create ${type} — hook this up to your workflow`);
+      flyout.classList.add('hidden');
+    });
+    flyout.append(li);
+  });
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    flyout.classList.toggle('hidden');
+  });
+
+  document.addEventListener('click', () => flyout.classList.add('hidden'));
+
+  wrapper.append(btn, flyout);
+  return wrapper;
+}
+
 function renderActivities(activities) {
   const container = document.createElement('div');
   container.className = 'activities';
@@ -111,6 +150,7 @@ function renderActivities(activities) {
   table.innerHTML = `
     <thead>
       <tr>
+        <th></th>
         <th>ID</th>
         <th>Name</th>
         <th>Type</th>
@@ -120,21 +160,38 @@ function renderActivities(activities) {
     </thead>
   `;
 
+  const createBar = renderCreateFlyout();
+  let selectedRow = null;
+
   const tbody = document.createElement('tbody');
   activities.forEach((a) => {
     const tr = document.createElement('tr');
+    tr.className = 'activity-row';
     tr.innerHTML = `
+      <td class="select-cell"><span class="radio"></span></td>
       <td>${a.id}</td>
       <td>${a.name}</td>
       <td>${a.type.toUpperCase()}</td>
       <td><span class="state state--${a.state}">${a.state}</span></td>
       <td>${formatDate(a.modifiedAt)}</td>
     `;
+    tr.addEventListener('click', () => {
+      if (selectedRow === tr) {
+        tr.classList.remove('selected');
+        selectedRow = null;
+        createBar.classList.add('hidden');
+      } else {
+        if (selectedRow) selectedRow.classList.remove('selected');
+        tr.classList.add('selected');
+        selectedRow = tr;
+        createBar.classList.remove('hidden');
+      }
+    });
     tbody.append(tr);
   });
 
   table.append(tbody);
-  container.append(table);
+  container.append(table, createBar);
   return container;
 }
 
