@@ -16,14 +16,17 @@ async function getToken(clientId, clientSecret) {
   return accessToken;
 }
 
-function targetFetch(path, tenant, clientId, token) {
-  return fetch(`${MC_BASE}/${tenant}/target${path}`, {
+function targetRequest(method, path, tenant, clientId, token, body) {
+  const opts = {
+    method,
     headers: {
       Authorization: `Bearer ${token}`,
       'X-Api-Key': clientId,
       'Content-Type': 'application/json',
     },
-  }).then((r) => r.json());
+  };
+  if (body) opts.body = JSON.stringify(body);
+  return fetch(`${MC_BASE}/${tenant}/target${path}`, opts).then((r) => r.json());
 }
 
 async function main(params) {
@@ -42,21 +45,39 @@ async function main(params) {
     };
   }
 
-  // Query params arrive as top-level keys in web actions
   const resource = params.resource || 'activities';
   const activityId = params.id || null;
   const activityType = params.type || null;
+  const offerId = params.offerId ? Number(params.offerId) : null;
 
   try {
     const token = await getToken(clientId, clientSecret);
     let data;
 
     if (resource === 'offers') {
-      data = await targetFetch('/offers?sortBy=name&limit=100', tenant, clientId, token);
-    } else if (resource === 'activity' && activityId && activityType) {
-      data = await targetFetch(`/activities/${activityType}/${activityId}`, tenant, clientId, token);
+      data = await targetRequest('GET', '/offers?sortBy=name&limit=100', tenant, clientId, token);
+
+    } else if (resource === 'update-offer' && activityId && activityType && offerId) {
+      // Fetch current activity definition
+      const activity = await targetRequest('GET', `/activities/${activityType}/${activityId}`, tenant, clientId, token);
+
+      if (activity.httpStatus >= 400) {
+        return { statusCode: activity.httpStatus, body: JSON.stringify(activity) };
+      }
+
+      // Replace every offer reference in all experiences with the new offerId
+      if (activity.experiences) {
+        activity.experiences.forEach((exp) => {
+          if (exp.offerLocations) {
+            exp.offerLocations.forEach((loc) => { loc.offerId = offerId; });
+          }
+        });
+      }
+
+      data = await targetRequest('PUT', `/activities/${activityType}/${activityId}`, tenant, clientId, token, activity);
+
     } else {
-      data = await targetFetch('/activities', tenant, clientId, token);
+      data = await targetRequest('GET', '/activities', tenant, clientId, token);
     }
 
     return {

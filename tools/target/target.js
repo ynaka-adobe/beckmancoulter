@@ -167,12 +167,26 @@ function showOffersModal(offers, activity) {
   const applyBtn = document.createElement('button');
   applyBtn.className = 'btn-create';
   applyBtn.textContent = 'Apply';
-  applyBtn.addEventListener('click', () => {
-    if (selectedOffer) {
-      console.log('Selected offer:', selectedOffer);
-      alert(`Offer "${selectedOffer.name}" selected — wire up to your workflow`);
+  applyBtn.addEventListener('click', async () => {
+    if (!selectedOffer) { overlay.remove(); return; }
+    applyBtn.disabled = true;
+    applyBtn.textContent = 'Saving…';
+    try {
+      const url = `${RUNTIME_URL}?resource=update-offer&id=${activity.id}&type=${activity.type}&offerId=${selectedOffer.id}`;
+      const resp = await fetch(url);
+      const result = await resp.json();
+      if (result.httpStatus >= 400 || result.error) {
+        throw new Error(result.errors?.[0]?.message || result.error || 'Update failed');
+      }
+      overlay.remove();
+    } catch (err) {
+      applyBtn.disabled = false;
+      applyBtn.textContent = 'Apply';
+      const errEl = panel.querySelector('.offers-error') || document.createElement('p');
+      errEl.className = 'offers-error';
+      errEl.textContent = `Error: ${err.message}`;
+      footer.prepend(errEl);
     }
-    overlay.remove();
   });
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-change';
