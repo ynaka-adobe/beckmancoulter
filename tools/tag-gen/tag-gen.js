@@ -1,28 +1,102 @@
 import DA_SDK from 'https://da.live/nx/utils/sdk.js';
 
-// Credentials and token loaded from /tools/tag-gen/config.json (gitignored).
-// Populate by running: node tools/tag-gen/refresh-token.mjs
+const CLIENT_ID = '9d14e19963fb4f7b96cbf6c26aea9139';
+const TENANT = 'acsmarketing';
+const IMS_BASE = 'https://ims-na1.adobelogin.com';
+const SCOPES = 'openid,AdobeID,read_organizations';
+const TOKEN_KEY = 'tag-gen-ims-token';
 
-async function loadConfig() {
-  const cfg = await fetch('/tools/tag-gen/config.json').then((r) => r.json());
-  if (!cfg.accessToken) throw new Error('No access token — run: node tools/tag-gen/refresh-token.mjs');
-  return cfg;
+function getRedirectUri() {
+  return `${window.location.origin}${window.location.pathname}`;
 }
 
-async function getTargetToken() {
-  const { accessToken } = await loadConfig();
-  return accessToken;
+function base64urlEncode(buffer) {
+  return btoa(String.fromCharCode(...new Uint8Array(buffer)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+function generateVerifier() {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return base64urlEncode(bytes.buffer);
+}
+
+async function generateChallenge(verifier) {
+  const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
+  return base64urlEncode(hash);
+}
+
+async function startOAuth() {
+  const verifier = generateVerifier();
+  const challenge = await generateChallenge(verifier);
+  sessionStorage.setItem('pkce_verifier', verifier);
+
+  const params = new URLSearchParams({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    response_type: 'code',
+    redirect_uri: getRedirectUri(),
+    code_challenge: challenge,
+    code_challenge_method: 'S256',
+  });
+
+  window.location.href = `${IMS_BASE}/ims/authorize/v2?${params}`;
+}
+
+async function exchangeCode(code) {
+  const verifier = sessionStorage.getItem('pkce_verifier');
+  sessionStorage.removeItem('pkce_verifier');
+
+  const resp = await fetch(`${IMS_BASE}/ims/token/v3`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'authorization_code',
+      client_id: CLIENT_ID,
+      code,
+      redirect_uri: getRedirectUri(),
+      code_verifier: verifier,
+    }),
+  });
+
+  const data = await resp.json();
+  if (!data.access_token) throw new Error(`Token exchange failed: ${data.error_description ?? data.error}`);
+  return data.access_token;
+}
+
+async function getToken() {
+  const stored = sessionStorage.getItem(TOKEN_KEY);
+  if (stored) return stored;
+
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  if (code) {
+    const token = await exchangeCode(code);
+    sessionStorage.setItem(TOKEN_KEY, token);
+    window.history.replaceState({}, '', window.location.pathname);
+    return token;
+  }
+
+  await startOAuth();
+  return null;
 }
 
 async function fetchActivities(token) {
-  const { tenant, clientId } = await loadConfig();
-  const resp = await fetch(`https://mc.adobe.io/${tenant}/target/activities`, {
+  const resp = await fetch(`https://mc.adobe.io/${TENANT}/target/activities`, {
     headers: {
       Authorization: `Bearer ${token}`,
-      'X-Api-Key': clientId,
+      'X-Api-Key': CLIENT_ID,
       'Content-Type': 'application/json',
     },
   });
+  if (!resp.ok) {
+    if (resp.status === 401) {
+      sessionStorage.removeItem(TOKEN_KEY);
+      await startOAuth();
+      return [];
+    }
+    throw new Error(`Target API error: ${resp.status}`);
+  }
   const { activities } = await resp.json();
   return activities ?? [];
 }
@@ -71,18 +145,21 @@ function renderActivities(activities) {
 }
 
 (async function init() {
-  const { context, token } = await DA_SDK;
+  const { context, token: daToken } = await DA_SDK;
   const { org, repo, path } = context;
-  console.log(org, repo, path, token);
+  console.log(org, repo, path);
 
-  document.body.innerHTML = '<p class="loading">Loading Target activities…</p>';
+  document.body.innerHTML = '<p class="loading">Authenticating…</p>';
 
   try {
-    const targetToken = await getTargetToken();
-    const activities = await fetchActivities(targetToken);
+    const imsToken = await getToken();
+    if (!imsToken) return;
+
+    document.body.innerHTML = '<p class="loading">Loading Target activities…</p>';
+    const activities = await fetchActivities(imsToken);
     document.body.innerHTML = '';
     document.body.append(renderActivities(activities));
   } catch (err) {
-    document.body.innerHTML = `<p class="error">Failed to load activities: ${err.message}</p>`;
+    document.body.innerHTML = `<p class="error">${err.message}</p>`;
   }
 }());
