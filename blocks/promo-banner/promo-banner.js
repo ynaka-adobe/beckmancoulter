@@ -29,7 +29,7 @@ export default async function decorate(block) {
 // chosen path rather than injecting HTML, so we can use loadFragment instead).
 // ---------------------------------------------------------------------------
 
-const DATE_KEY = 'url.date';
+const DATE_KEY = 'date';
 
 function getEffectiveDate() {
   const params = new URLSearchParams(window.location.search);

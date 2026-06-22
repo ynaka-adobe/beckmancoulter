@@ -6,12 +6,12 @@
  * start/end date (the default).
  *
  * Date override (persists for the browser session):
- *   ?url.date=2026-07-15   — set via URL param, stored in sessionStorage
- *   sessionStorage['url.date'] — read on subsequent page loads
+ *   ?date=2026-07-15   — set via URL param, stored in sessionStorage
+ *   sessionStorage['date'] — read on subsequent page loads
  */
 
 const SCHEDULER_URL = '/fragments/promo-scheduler.json';
-const DATE_KEY = 'url.date';
+const DATE_KEY = 'date';
 
 function getEffectiveDate() {
   const params = new URLSearchParams(window.location.search);
