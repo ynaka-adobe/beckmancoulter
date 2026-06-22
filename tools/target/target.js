@@ -167,26 +167,13 @@ function showOffersModal(offers, activity) {
   const applyBtn = document.createElement('button');
   applyBtn.className = 'btn-create';
   applyBtn.textContent = 'Apply';
-  applyBtn.addEventListener('click', async () => {
+  applyBtn.addEventListener('click', () => {
     if (!selectedOffer) { overlay.remove(); return; }
-    applyBtn.disabled = true;
-    applyBtn.textContent = 'Saving…';
-    try {
-      const url = `${RUNTIME_URL}?resource=update-offer&id=${activity.id}&type=${activity.type}&offerId=${selectedOffer.id}`;
-      const resp = await fetch(url);
-      const result = await resp.json();
-      if (result.httpStatus >= 400 || result.error) {
-        throw new Error(result.errors?.[0]?.message || result.error || 'Update failed');
-      }
-      overlay.remove();
-    } catch (err) {
-      applyBtn.disabled = false;
-      applyBtn.textContent = 'Apply';
-      const errEl = panel.querySelector('.offers-error') || document.createElement('p');
-      errEl.className = 'offers-error';
-      errEl.textContent = `Error: ${err.message}`;
-      footer.prepend(errEl);
-    }
+    const typeMap = { xt: 'ExperienceTargeting', abt: 'ABTest', mvt: 'MultivariateTest' };
+    const uiType = typeMap[activity.type] || 'ExperienceTargeting';
+    const targetUrl = `https://experience.adobe.com/#/@acsmarketing/target/activities/activitydetails/${uiType}/${activity.id}/targeting`;
+    overlay.remove();
+    window.open(targetUrl, '_blank');
   });
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-change';
