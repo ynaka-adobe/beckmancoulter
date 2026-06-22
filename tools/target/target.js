@@ -107,9 +107,9 @@ const ACTIVITY_TYPES = [
   'Recommendations',
 ];
 
-function renderCreateFlyout() {
+function renderActionBar() {
   const wrapper = document.createElement('div');
-  wrapper.className = 'create-bar hidden';
+  wrapper.className = 'action-bar';
 
   const btn = document.createElement('button');
   btn.className = 'btn-create';
@@ -129,12 +129,27 @@ function renderCreateFlyout() {
 
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
-    flyout.classList.toggle('hidden');
+    if (!btn.disabled) flyout.classList.toggle('hidden');
   });
 
   document.addEventListener('click', () => flyout.classList.add('hidden'));
 
-  wrapper.append(btn, flyout);
+  const changeBtn = document.createElement('button');
+  changeBtn.className = 'btn-change hidden';
+  changeBtn.textContent = 'Change Experience';
+  changeBtn.addEventListener('click', () => {
+    alert('Change Experience — hook this up to your workflow');
+  });
+
+  wrapper.append(btn, flyout, changeBtn);
+
+  wrapper.setSelected = (hasSelection) => {
+    btn.disabled = hasSelection;
+    btn.classList.toggle('disabled', hasSelection);
+    flyout.classList.add('hidden');
+    changeBtn.classList.toggle('hidden', !hasSelection);
+  };
+
   return wrapper;
 }
 
@@ -160,7 +175,7 @@ function renderActivities(activities) {
     </thead>
   `;
 
-  const createBar = renderCreateFlyout();
+  const actionBar = renderActionBar();
   let selectedRow = null;
 
   const tbody = document.createElement('tbody');
@@ -179,19 +194,19 @@ function renderActivities(activities) {
       if (selectedRow === tr) {
         tr.classList.remove('selected');
         selectedRow = null;
-        createBar.classList.add('hidden');
+        actionBar.setSelected(false);
       } else {
         if (selectedRow) selectedRow.classList.remove('selected');
         tr.classList.add('selected');
         selectedRow = tr;
-        createBar.classList.remove('hidden');
+        actionBar.setSelected(true);
       }
     });
     tbody.append(tr);
   });
 
   table.append(tbody);
-  container.append(table, createBar);
+  container.append(table, actionBar);
   return container;
 }
 
