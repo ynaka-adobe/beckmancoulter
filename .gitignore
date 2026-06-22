@@ -9,3 +9,4 @@ helix-importer-ui
 .idea
 migration-work/navigation-validation/
 migration-work/footer-validation/
+tools/tag-gen/config.json
