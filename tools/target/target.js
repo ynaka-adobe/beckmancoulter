@@ -243,17 +243,12 @@ function showOffersModal(offers, activity) {
       const resp = await fetch(url);
       const result = await resp.json();
 
-      if (result.vecActivity) {
-        // VEC activity — fall back to Target UI
-        const typeMap = { xt: 'ExperienceTargeting', abt: 'ABTest', mvt: 'MultivariateTest' };
-        const uiType = typeMap[activity.type] || 'ExperienceTargeting';
-        overlay.remove();
-        window.open(`https://experience.adobe.com/#/@acsmarketing/target/activities/activitydetails/${uiType}/${activity.id}/targeting`, '_blank');
-        return;
-      }
-
-      if (result.httpStatus >= 400 || result.error) {
-        throw new Error(result.errors?.[0]?.message || result.error || 'Update failed');
+      if (result.httpStatus >= 400 || result.error || result.raw) {
+        const msg = result.raw?.errors?.[0]?.message
+          || result.errors?.[0]?.message
+          || result.error
+          || `API error ${result.httpStatus || ''}`;
+        throw new Error(msg);
       }
 
       overlay.remove();
