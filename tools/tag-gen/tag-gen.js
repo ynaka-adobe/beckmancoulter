@@ -1,20 +1,25 @@
 import DA_SDK from 'https://da.live/nx/utils/sdk.js';
 
-const TARGET_CLIENT = 'acsmarketing';
-const API_KEY = '9d14e19963fb4f7b96cbf6c26aea9139';
-// CLIENT_SECRET loaded from /tools/tag-gen/config.json (gitignored)
+// Credentials and token loaded from /tools/tag-gen/config.json (gitignored).
+// Populate by running: node tools/tag-gen/refresh-token.mjs
+
+async function loadConfig() {
+  const cfg = await fetch('/tools/tag-gen/config.json').then((r) => r.json());
+  if (!cfg.accessToken) throw new Error('No access token — run: node tools/tag-gen/refresh-token.mjs');
+  return cfg;
+}
 
 async function getTargetToken() {
-  const { accessToken } = await fetch('/tools/tag-gen/config.json').then((r) => r.json());
-  if (!accessToken) throw new Error('No access token in config.json — run: node tools/tag-gen/refresh-token.js');
+  const { accessToken } = await loadConfig();
   return accessToken;
 }
 
 async function fetchActivities(token) {
-  const resp = await fetch(`https://mc.adobe.io/${TARGET_CLIENT}/target/activities`, {
+  const { tenant, clientId } = await loadConfig();
+  const resp = await fetch(`https://mc.adobe.io/${tenant}/target/activities`, {
     headers: {
       Authorization: `Bearer ${token}`,
-      'X-Api-Key': API_KEY,
+      'X-Api-Key': clientId,
       'Content-Type': 'application/json',
     },
   });
