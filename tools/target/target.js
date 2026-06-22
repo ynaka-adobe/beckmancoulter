@@ -196,14 +196,19 @@ function renderActivities(activities) {
 }
 
 (async function init() {
-  const { context, token: daToken } = await DA_SDK;
-  const { org, repo, path } = context;
-  console.log(org, repo, path);
+  // DA SDK resolves only inside DA iframe; fall back gracefully when standalone
+  const daContext = await Promise.race([
+    DA_SDK,
+    new Promise((resolve) => setTimeout(() => resolve(null), 1500)),
+  ]);
+  if (daContext) {
+    const { org, repo, path } = daContext.context;
+    console.log(org, repo, path);
+  }
 
-  document.body.innerHTML = '<p class="loading">Authenticating…</p>';
+  document.body.innerHTML = '<p class="loading">Loading Target activities…</p>';
 
   try {
-    document.body.innerHTML = '<p class="loading">Loading Target activities…</p>';
     const activities = await fetchActivities();
     document.body.innerHTML = '';
     document.body.append(renderActivities(activities));
