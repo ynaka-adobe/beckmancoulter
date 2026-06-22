@@ -95,6 +95,13 @@ async function main(params) {
           mboxes: [{ locationLocalId: 0, name: mbox }],
         },
         experiences: [experience],
+        metrics: [
+          {
+            name: 'Conversion',
+            type: 'conversion',
+            mboxes: [{ name: mbox }],
+          },
+        ],
       };
 
       data = await targetRequest('POST', '/activities/xt', tenant, clientId, token, xtBody);
