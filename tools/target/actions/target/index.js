@@ -82,6 +82,7 @@ async function main(params) {
       const { name, mbox = 'target-global-mbox', offerId: oId, audienceId } = activityDef;
 
       const experience = {
+        experienceLocalId: 0,
         name: 'Experience A',
         offerLocations: [{ locationLocalId: 0, offerId: Number(oId) }],
       };
