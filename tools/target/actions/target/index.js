@@ -98,8 +98,8 @@ async function main(params) {
         metrics: [
           {
             name: 'Conversion',
-            type: 'conversion',
-            mboxes: [{ name: mbox }],
+            action: 'mbox_converted',
+            mbox,
           },
         ],
       };
