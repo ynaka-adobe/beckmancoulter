@@ -141,6 +141,8 @@ export function decorateMain(main) {
   decorateBlocks(main);
 }
 
+let showExperimentationOverlay;
+
 /**
  * Loads everything needed to get to LCP.
  * @param {Element} doc The container element
@@ -151,6 +153,21 @@ async function loadEager(doc) {
   if (getMetadata('breadcrumbs').toLowerCase() === 'true') {
     doc.body.dataset.breadcrumbs = true;
   }
+
+  const isExperimentationEnabled = doc.head.querySelector('[name^="experiment"],[name^="campaign-"],[name^="audience-"]')
+    || [...doc.querySelectorAll('.section-metadata div')].some((d) => d.textContent.match(/Experiment|Campaign|Audience/i));
+  if (isExperimentationEnabled) {
+    const { loadEager: runExperimentation, loadLazy: lazyOverlay } = await import('../plugins/experimentation/src/index.js');
+    showExperimentationOverlay = lazyOverlay;
+    await runExperimentation(doc, {
+      prodHost: 'www.beckmancoulter.com',
+      audiences: {
+        mobile: () => window.innerWidth < 600,
+        desktop: () => window.innerWidth >= 600,
+      },
+    });
+  }
+
   const main = doc.querySelector('main');
   if (main) {
     decorateMain(main);
@@ -176,6 +193,8 @@ async function loadEager(doc) {
  */
 async function loadLazy(doc) {
   autolinkModals(doc);
+
+  if (showExperimentationOverlay) await showExperimentationOverlay(doc);
 
   const main = doc.querySelector('main');
   await loadSections(main);
