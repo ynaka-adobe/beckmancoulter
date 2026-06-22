@@ -6,9 +6,30 @@ body {
 }
 
 h2 {
-  margin: 0 0 16px;
+  margin: 0;
   font-size: 20px;
   font-weight: 700;
+}
+
+.heading-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 16px;
+}
+
+.btn-expand {
+  display: flex;
+  align-items: center;
+  color: #666;
+  transition: color 0.15s;
+}
+
+.btn-expand:hover { color: #1473e6; }
+
+.btn-expand svg {
+  width: 16px;
+  height: 16px;
 }
 
 .loading, .error {
