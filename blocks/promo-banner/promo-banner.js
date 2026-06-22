@@ -43,6 +43,10 @@ function getEffectiveDate() {
   return new Date();
 }
 
+function toDateOnly(d) {
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+}
+
 async function resolvePromoFragment(schedulerUrl) {
   let resp;
   try {
@@ -53,14 +57,14 @@ async function resolvePromoFragment(schedulerUrl) {
   if (!resp.ok) return null;
 
   const { data } = await resp.json();
-  const now = getEffectiveDate();
+  const now = toDateOnly(getEffectiveDate());
 
   let match = null;
   let fallback = null;
 
   for (const row of data) {
-    const start = row.start ? new Date(row.start) : null;
-    const end = row.end ? new Date(row.end) : null;
+    const start = row.start ? toDateOnly(new Date(row.start)) : null;
+    const end = row.end ? toDateOnly(new Date(row.end)) : null;
     const fragment = row['fragment URL'] || row.fragment || '';
 
     if (!fragment) continue;

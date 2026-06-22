@@ -25,6 +25,10 @@ function getEffectiveDate() {
   return new Date();
 }
 
+function toDateOnly(d) {
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+}
+
 async function fetchFragment(path) {
   const url = `${path}.plain.html`;
   const resp = await fetch(url);
@@ -41,14 +45,14 @@ export default async function initPromoScheduler(container) {
   }
 
   const { data } = await resp.json();
-  const now = getEffectiveDate();
+  const now = toDateOnly(getEffectiveDate());
 
   let match = null;
   let fallback = null;
 
   for (const row of data) {
-    const start = row.start ? new Date(row.start) : null;
-    const end = row.end ? new Date(row.end) : null;
+    const start = row.start ? toDateOnly(new Date(row.start)) : null;
+    const end = row.end ? toDateOnly(new Date(row.end)) : null;
     // Support both "fragment URL" (current sheet header) and "fragment"
     const fragment = row['fragment URL'] || row.fragment || '';
 
