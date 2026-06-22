@@ -225,13 +225,43 @@ function showOffersModal(offers, activity) {
   const applyBtn = document.createElement('button');
   applyBtn.className = 'btn-create';
   applyBtn.textContent = 'Apply';
-  applyBtn.addEventListener('click', () => {
+  applyBtn.addEventListener('click', async () => {
     if (!selectedOffer) { overlay.remove(); return; }
-    const typeMap = { xt: 'ExperienceTargeting', abt: 'ABTest', mvt: 'MultivariateTest' };
-    const uiType = typeMap[activity.type] || 'ExperienceTargeting';
-    const targetUrl = `https://experience.adobe.com/#/@acsmarketing/target/activities/activitydetails/${uiType}/${activity.id}/targeting`;
-    overlay.remove();
-    window.open(targetUrl, '_blank');
+    applyBtn.disabled = true;
+    applyBtn.textContent = 'Saving…';
+
+    const errEl = footer.querySelector('.offers-error') || (() => {
+      const el = document.createElement('p');
+      el.className = 'offers-error';
+      footer.prepend(el);
+      return el;
+    })();
+    errEl.textContent = '';
+
+    try {
+      const url = `${RUNTIME_URL}?resource=update-offer&id=${activity.id}&type=${activity.type}&offerId=${selectedOffer.id}`;
+      const resp = await fetch(url);
+      const result = await resp.json();
+
+      if (result.vecActivity) {
+        // VEC activity — fall back to Target UI
+        const typeMap = { xt: 'ExperienceTargeting', abt: 'ABTest', mvt: 'MultivariateTest' };
+        const uiType = typeMap[activity.type] || 'ExperienceTargeting';
+        overlay.remove();
+        window.open(`https://experience.adobe.com/#/@acsmarketing/target/activities/activitydetails/${uiType}/${activity.id}/targeting`, '_blank');
+        return;
+      }
+
+      if (result.httpStatus >= 400 || result.error) {
+        throw new Error(result.errors?.[0]?.message || result.error || 'Update failed');
+      }
+
+      overlay.remove();
+    } catch (err) {
+      errEl.textContent = `Error: ${err.message}`;
+      applyBtn.disabled = false;
+      applyBtn.textContent = 'Apply';
+    }
   });
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-change';

@@ -102,13 +102,12 @@ async function main(params) {
       data = await targetRequest('POST', '/activities/xt', tenant, clientId, token, xtBody);
 
     } else if (resource === 'update-offer' && activityId && activityType && offerId) {
-      const getPath = `/activities/${activityType}/${activityId}?version=3`;
-      const activity = await targetRequest('GET', getPath, tenant, clientId, token);
+      const activity = await targetRequest('GET', `/activities/${activityType}/${activityId}`, tenant, clientId, token);
 
       if (activity.httpStatus >= 400) {
         return {
           statusCode: activity.httpStatus,
-          body: JSON.stringify({ raw: activity, hint: 'GET activity failed — VEC options not supported by Admin API v1' }),
+          body: JSON.stringify({ raw: activity, vecActivity: true }),
         };
       }
 
@@ -120,7 +119,7 @@ async function main(params) {
         });
       }
 
-      data = await targetRequest('PUT', `/activities/${activityType}/${activityId}?version=3`, tenant, clientId, token, activity);
+      data = await targetRequest('PUT', `/activities/${activityType}/${activityId}`, tenant, clientId, token, activity);
 
     } else {
       data = await targetRequest('GET', '/activities', tenant, clientId, token);
