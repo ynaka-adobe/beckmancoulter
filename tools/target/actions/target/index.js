@@ -22,7 +22,7 @@ function targetRequest(method, path, tenant, clientId, token, body) {
     headers: {
       Authorization: `Bearer ${token}`,
       'X-Api-Key': clientId,
-      'Content-Type': 'application/json',
+      'Content-Type': body ? 'application/vnd.adobe.target.v1+json' : 'application/json',
     },
   };
   if (body) opts.body = JSON.stringify(body);
