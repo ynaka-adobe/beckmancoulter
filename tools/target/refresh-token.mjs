@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Run: node tools/tag-gen/refresh-token.mjs
+// Run: node tools/target/refresh-token.mjs
 // Reads credentials from DA sheet .da/adobe-target, fetches a token, writes to config.json
 
 import { writeFileSync } from 'fs';
