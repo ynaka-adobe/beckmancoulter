@@ -81,6 +81,12 @@ async function main(params) {
 
       const { name, mbox = 'target-global-mbox', offerId: oId, audienceId } = activityDef;
 
+      const experience = {
+        name: 'Experience A',
+        offerLocations: [{ locationLocalId: 0, offerId: Number(oId) }],
+      };
+      if (audienceId) experience.audienceIds = [audienceId];
+
       const xtBody = {
         name,
         state: 'saved',
@@ -88,22 +94,7 @@ async function main(params) {
         locations: {
           mboxes: [{ locationLocalId: 0, name: mbox }],
         },
-        experiences: [
-          {
-            id: 0,
-            name: 'Experience A',
-            audienceIds: audienceId ? [audienceId] : [],
-            offerLocations: [{ locationLocalId: 0, offerId: Number(oId) }],
-          },
-        ],
-        metrics: [
-          {
-            id: 0,
-            name: 'Entry',
-            type: 'entry',
-            mboxes: [{ name: mbox }],
-          },
-        ],
+        experiences: [experience],
       };
 
       data = await targetRequest('POST', '/activities/xt', tenant, clientId, token, xtBody);
