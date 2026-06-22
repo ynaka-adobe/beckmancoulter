@@ -1,4 +1,5 @@
 const IMS_URL = 'https://ims-na1.adobelogin.com/ims/token/v3';
+const MC_BASE = 'https://mc.adobe.io';
 
 async function getToken(clientId, clientSecret) {
   const resp = await fetch(IMS_URL, {
@@ -15,15 +16,14 @@ async function getToken(clientId, clientSecret) {
   return accessToken;
 }
 
-async function fetchActivities(tenant, clientId, token) {
-  const resp = await fetch(`https://mc.adobe.io/${tenant}/target/activities`, {
+function targetFetch(path, tenant, clientId, token) {
+  return fetch(`${MC_BASE}/${tenant}/target${path}`, {
     headers: {
       Authorization: `Bearer ${token}`,
       'X-Api-Key': clientId,
       'Content-Type': 'application/json',
     },
-  });
-  return resp.json();
+  }).then((r) => r.json());
 }
 
 async function main(params) {
@@ -42,9 +42,23 @@ async function main(params) {
     };
   }
 
+  // Query params arrive as top-level keys in web actions
+  const resource = params.resource || 'activities';
+  const activityId = params.id || null;
+  const activityType = params.type || null;
+
   try {
     const token = await getToken(clientId, clientSecret);
-    const data = await fetchActivities(tenant, clientId, token);
+    let data;
+
+    if (resource === 'offers') {
+      data = await targetFetch('/offers?sortBy=name&limit=100', tenant, clientId, token);
+    } else if (resource === 'activity' && activityId && activityType) {
+      data = await targetFetch(`/activities/${activityType}/${activityId}`, tenant, clientId, token);
+    } else {
+      data = await targetFetch('/activities', tenant, clientId, token);
+    }
+
     return {
       statusCode: 200,
       body: JSON.stringify(data),

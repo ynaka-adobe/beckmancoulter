@@ -81,22 +81,109 @@ async function getToken() {
   return null;
 }
 
+const RUNTIME_URL = 'https://332794-868ceruleanwhale.adobeioruntime.net/api/v1/web/default/target-activities';
+
 async function fetchActivities() {
-  const resp = await fetch('https://332794-868ceruleanwhale.adobeioruntime.net/api/v1/web/default/target-activities');
-  if (!resp.ok) {
-    if (resp.status === 401) {
-      sessionStorage.removeItem(TOKEN_KEY);
-      await startOAuth();
-      return [];
-    }
-    throw new Error(`Target API error: ${resp.status}`);
-  }
+  const resp = await fetch(RUNTIME_URL);
+  if (!resp.ok) throw new Error(`Target API error: ${resp.status}`);
   const { activities } = await resp.json();
   return activities ?? [];
 }
 
+async function fetchOffers() {
+  const resp = await fetch(`${RUNTIME_URL}?resource=offers`);
+  if (!resp.ok) throw new Error(`Offers API error: ${resp.status}`);
+  const { offers } = await resp.json();
+  return offers ?? [];
+}
+
 function formatDate(iso) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function showOffersModal(offers, activity) {
+  document.querySelector('.offers-modal')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'offers-modal';
+
+  const panel = document.createElement('div');
+  panel.className = 'offers-panel';
+
+  const header = document.createElement('div');
+  header.className = 'offers-header';
+  header.innerHTML = `<h3>Select Offer</h3>`;
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'offers-close';
+  closeBtn.textContent = '✕';
+  closeBtn.addEventListener('click', () => overlay.remove());
+  header.append(closeBtn);
+
+  const table = document.createElement('table');
+  table.className = 'offers-table';
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th></th>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Modified</th>
+      </tr>
+    </thead>
+  `;
+
+  const tbody = document.createElement('tbody');
+  let selectedOffer = null;
+
+  // Pre-select offer whose name matches the activity name (case-insensitive)
+  const currentName = (activity?.name || '').toLowerCase();
+
+  offers.forEach((o) => {
+    const tr = document.createElement('tr');
+    tr.className = 'offer-row';
+    const isMatch = o.name.toLowerCase() === currentName;
+    if (isMatch) {
+      tr.classList.add('selected');
+      selectedOffer = o;
+    }
+    tr.innerHTML = `
+      <td class="select-cell"><span class="radio"></span></td>
+      <td>${o.name}</td>
+      <td>${o.type ?? '—'}</td>
+      <td>${formatDate(o.modifiedAt)}</td>
+    `;
+    tr.addEventListener('click', () => {
+      tbody.querySelectorAll('.offer-row.selected').forEach((r) => r.classList.remove('selected'));
+      tr.classList.add('selected');
+      selectedOffer = o;
+    });
+    tbody.append(tr);
+  });
+
+  table.append(tbody);
+
+  const footer = document.createElement('div');
+  footer.className = 'offers-footer';
+  const applyBtn = document.createElement('button');
+  applyBtn.className = 'btn-create';
+  applyBtn.textContent = 'Apply';
+  applyBtn.addEventListener('click', () => {
+    if (selectedOffer) {
+      console.log('Selected offer:', selectedOffer);
+      alert(`Offer "${selectedOffer.name}" selected — wire up to your workflow`);
+    }
+    overlay.remove();
+  });
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'btn-change';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.addEventListener('click', () => overlay.remove());
+  footer.append(cancelBtn, applyBtn);
+
+  panel.append(header, table, footer);
+  overlay.append(panel);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  document.body.append(overlay);
 }
 
 const ACTIVITY_TYPES = [
@@ -137,17 +224,29 @@ function renderActionBar() {
   const changeBtn = document.createElement('button');
   changeBtn.className = 'btn-change hidden';
   changeBtn.textContent = 'Change Experience';
-  changeBtn.addEventListener('click', () => {
-    alert('Change Experience — hook this up to your workflow');
+  changeBtn.addEventListener('click', async () => {
+    const activity = changeBtn._activity;
+    changeBtn.disabled = true;
+    changeBtn.textContent = 'Loading offers…';
+    try {
+      const offers = await fetchOffers();
+      showOffersModal(offers, activity);
+    } catch (err) {
+      alert(`Failed to load offers: ${err.message}`);
+    } finally {
+      changeBtn.disabled = false;
+      changeBtn.textContent = 'Change Experience';
+    }
   });
 
   wrapper.append(btn, flyout, changeBtn);
 
-  wrapper.setSelected = (hasSelection) => {
+  wrapper.setSelected = (hasSelection, activity = null) => {
     btn.disabled = hasSelection;
     btn.classList.toggle('disabled', hasSelection);
     flyout.classList.add('hidden');
     changeBtn.classList.toggle('hidden', !hasSelection);
+    changeBtn._activity = activity;
   };
 
   return wrapper;
@@ -199,7 +298,7 @@ function renderActivities(activities) {
         if (selectedRow) selectedRow.classList.remove('selected');
         tr.classList.add('selected');
         selectedRow = tr;
-        actionBar.setSelected(true);
+        actionBar.setSelected(true, a);
       }
     });
     tbody.append(tr);
