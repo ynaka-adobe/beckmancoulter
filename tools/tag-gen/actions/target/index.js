@@ -1,12 +1,5 @@
 const IMS_URL = 'https://ims-na1.adobelogin.com/ims/token/v3';
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Content-Type': 'application/json',
-};
-
 async function getToken(clientId, clientSecret) {
   const resp = await fetch(IMS_URL, {
     method: 'POST',
@@ -35,7 +28,7 @@ async function fetchActivities(tenant, clientId, token) {
 
 async function main(params) {
   if (params.__ow_method === 'OPTIONS') {
-    return { statusCode: 204, headers: CORS_HEADERS };
+    return { statusCode: 204 };
   }
 
   const clientId = params.TARGET_CLIENT_ID;
@@ -45,7 +38,6 @@ async function main(params) {
   if (!clientId || !clientSecret || !tenant) {
     return {
       statusCode: 500,
-      headers: CORS_HEADERS,
       body: JSON.stringify({ error: 'Missing TARGET_CLIENT_ID, TARGET_CLIENT_SECRET, or TARGET_TENANT params' }),
     };
   }
@@ -55,13 +47,11 @@ async function main(params) {
     const data = await fetchActivities(tenant, clientId, token);
     return {
       statusCode: 200,
-      headers: CORS_HEADERS,
       body: JSON.stringify(data),
     };
   } catch (err) {
     return {
       statusCode: 500,
-      headers: CORS_HEADERS,
       body: JSON.stringify({ error: err.message }),
     };
   }
