@@ -81,14 +81,8 @@ async function getToken() {
   return null;
 }
 
-async function fetchActivities(token) {
-  const resp = await fetch(`https://mc.adobe.io/${TENANT}/target/activities`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'X-Api-Key': CLIENT_ID,
-      'Content-Type': 'application/json',
-    },
-  });
+async function fetchActivities() {
+  const resp = await fetch('https://332794-868ceruleanwhale.adobeioruntime.net/api/v1/web/default/target-activities');
   if (!resp.ok) {
     if (resp.status === 401) {
       sessionStorage.removeItem(TOKEN_KEY);
@@ -152,11 +146,8 @@ function renderActivities(activities) {
   document.body.innerHTML = '<p class="loading">Authenticating…</p>';
 
   try {
-    const imsToken = await getToken();
-    if (!imsToken) return;
-
     document.body.innerHTML = '<p class="loading">Loading Target activities…</p>';
-    const activities = await fetchActivities(imsToken);
+    const activities = await fetchActivities();
     document.body.innerHTML = '';
     document.body.append(renderActivities(activities));
   } catch (err) {
